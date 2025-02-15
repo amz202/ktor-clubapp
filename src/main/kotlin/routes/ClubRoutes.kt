@@ -1,0 +1,79 @@
+package com.example.routes
+
+import com.example.data.datasource.ClubDataSource
+import com.example.data.model.Club
+import com.example.data.model.Requests.ClubEventsRequest
+import io.ktor.http.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import java.util.*
+import kotlin.text.get
+
+fun Route.getClub(clubDataSource: ClubDataSource) {
+    get("/clubs/{id}") {
+        val clubId = call.parameters["id"]?.let { UUID.fromString(it) }
+        if (clubId == null) {
+            call.respond(HttpStatusCode.BadRequest, "Invalid club ID")
+            return@get
+        }
+        val club = clubDataSource.getClub(clubId)
+        if (club == null) {
+            call.respond(HttpStatusCode.NotFound, "Club not found")
+        } else {
+            call.respond(HttpStatusCode.OK, club)
+        }
+    }
+}
+fun Route.getClubs(clubDataSource: ClubDataSource) {
+    get("/clubs") {
+        val clubs = clubDataSource.getClubs()
+        call.respond(clubs)
+    }
+}
+fun Route.createClub(clubDataSource: ClubDataSource) {
+    post("/clubs") {
+        val clubRequest = call.receive<Club>()
+        val club = Club(
+            name = clubRequest.name,
+            description = clubRequest.description
+        )
+        val result = clubDataSource.createClub(club)
+        if (result) {
+            call.respond(HttpStatusCode.Created, club)
+        } else {
+            call.respond(HttpStatusCode.InternalServerError, "Couldn't create club")
+        }
+    }
+}
+fun Route.deleteClub(clubDataSource: ClubDataSource) {
+    delete("/clubs/{id}") {
+        val clubId = call.parameters["id"]?.let { UUID.fromString(it) }
+        if (clubId == null) {
+            call.respond(HttpStatusCode.BadRequest, "Invalid club ID")
+            return@delete
+        }
+        val result = clubDataSource.deleteClub(clubId)
+        if (result) {
+            call.respond(HttpStatusCode.OK, "Club deleted")
+        } else {
+            call.respond(HttpStatusCode.NotFound, "Club not found")
+        }
+    }
+}
+
+fun Route.getClubEvents(clubDataSource: ClubDataSource) {
+    post("/clubs/events") {
+        try {
+            val request = call.receive<ClubEventsRequest>()
+            val clubId = UUID.fromString(request.clubId) // ✅ Convert String to UUID
+
+            val events = clubDataSource.getClubEvents(clubId)
+            call.respond(HttpStatusCode.OK, events)
+        } catch (e: IllegalArgumentException) {
+            call.respond(HttpStatusCode.BadRequest, "Invalid UUID format")
+        } catch (e: Exception) {
+            call.respond(HttpStatusCode.InternalServerError, "Something went wrong: ${e.message}")
+        }
+    }
+}

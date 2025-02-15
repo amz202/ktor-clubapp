@@ -1,0 +1,70 @@
+package com.example.routes
+
+import com.example.data.datasource.EventsDataSource
+import com.example.data.model.Event
+import com.example.data.model.Requests.EventRequest
+import io.ktor.http.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import java.util.*
+
+fun Route.getEvents(eventsDataSource: EventsDataSource) {
+    get("/events") {
+        val events = eventsDataSource.getEvents()
+        call.respond(events)
+    }
+}
+
+fun Route.getEvent(eventsDataSource: EventsDataSource) {
+    get("/events/{id}") {
+        val eventId = call.parameters["id"]?.let { UUID.fromString(it) }
+        if (eventId == null) {
+            call.respond(HttpStatusCode.BadRequest, "Invalid event ID")
+            return@get
+        }
+        val event = eventsDataSource.getEvent(eventId)
+        if (event == null) {
+            call.respond(HttpStatusCode.NotFound, "Event not found")
+        } else {
+            call.respond(HttpStatusCode.OK, event)
+        }
+    }
+}
+
+fun Route.createEvent(eventsDataSource: EventsDataSource) {
+    post("/events") {
+        try {
+            val eventRequest = call.receive<EventRequest>()
+            val event = Event(
+                name = eventRequest.name,
+                description = eventRequest.description,
+                clubId = eventRequest.clubId
+            )
+            val result = eventsDataSource.createEvent(event)
+            if (result) {
+                call.respond(HttpStatusCode.Created, event)
+            } else {
+                call.respond(HttpStatusCode.InternalServerError, "Couldn't create event")
+            }
+        } catch (e: Exception) {
+            call.respond(HttpStatusCode.BadRequest, "Invalid request body: ${e.message}")
+        }
+    }
+}
+
+fun Route.deleteEvent(eventsDataSource: EventsDataSource) {
+    delete("/events/{id}") {
+        val eventId = call.parameters["id"]?.let { UUID.fromString(it) }
+        if (eventId == null) {
+            call.respond(HttpStatusCode.BadRequest, "Invalid event ID")
+            return@delete
+        }
+        val result = eventsDataSource.deleteEvent(eventId)
+        if (result) {
+            call.respond(HttpStatusCode.OK, "Event deleted")
+        } else {
+            call.respond(HttpStatusCode.NotFound, "Event not found")
+        }
+    }
+}
