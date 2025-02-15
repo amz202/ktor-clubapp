@@ -2,6 +2,7 @@ package com.example.routes
 
 import com.example.data.datasource.ClubDataSource
 import com.example.data.model.Club
+import com.example.data.model.MyAuthenticatedUser
 import com.example.data.model.Requests.ClubEventsRequest
 import io.ktor.http.*
 import io.ktor.server.request.*
@@ -9,6 +10,8 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import java.util.*
 import kotlin.text.get
+import io.ktor.http.*
+import io.ktor.server.auth.*
 
 fun Route.getClub(clubDataSource: ClubDataSource) {
     get("/clubs/{id}") {
@@ -31,18 +34,38 @@ fun Route.getClubs(clubDataSource: ClubDataSource) {
         call.respond(clubs)
     }
 }
+
 fun Route.createClub(clubDataSource: ClubDataSource) {
-    post("/clubs") {
-        val clubRequest = call.receive<Club>()
-        val club = Club(
-            name = clubRequest.name,
-            description = clubRequest.description
-        )
-        val result = clubDataSource.createClub(club)
-        if (result) {
-            call.respond(HttpStatusCode.Created, club)
-        } else {
-            call.respond(HttpStatusCode.InternalServerError, "Couldn't create club")
+    authenticate {
+        post("/clubs") {
+            val principal = call.principal<MyAuthenticatedUser>()
+            if (principal == null) {
+                call.respond(HttpStatusCode.Unauthorized, "Unauthorized")
+                return@post
+            }
+
+            val clubRequest = try {
+                call.receive<Club>()
+            } catch (e: Exception) {
+                call.respond(HttpStatusCode.BadRequest, "Invalid request body")
+                return@post
+            }
+
+            if (clubRequest.name.isBlank() || clubRequest.description.isBlank()) {
+                call.respond(HttpStatusCode.BadRequest, "Name and description cannot be blank")
+                return@post
+            }
+
+            val club = Club(
+                name = clubRequest.name,
+                description = clubRequest.description
+            )
+            val result = clubDataSource.createClub(club)
+            if (result) {
+                call.respond(HttpStatusCode.Created, club)
+            } else {
+                call.respond(HttpStatusCode.InternalServerError, "Couldn't create club")
+            }
         }
     }
 }

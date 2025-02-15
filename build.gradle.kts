@@ -44,6 +44,7 @@ dependencies {
     implementation("com.h2database:h2:$h2_version")
     implementation("org.postgresql:postgresql:$postgres_version")
     implementation("io.ktor:ktor-server-auth")
+    implementation("io.ktor:ktor-server-auth-jwt:2.3.6") // JWT authentication for Firebase
     implementation("com.kborowy:firebase-auth-provider:1.5.0")
     implementation("io.ktor:ktor-server-host-common")
     implementation("io.ktor:ktor-server-netty")

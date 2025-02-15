@@ -12,6 +12,15 @@ object Clubs : Table() {
 
     override val primaryKey = PrimaryKey(id)
 }
+
+object Users : Table(){
+    val id = varchar("id", 50)
+    val email = varchar("email", 255).uniqueIndex()
+    val name = varchar("name", 50)
+
+    override val primaryKey = PrimaryKey(id)
+}
+
 object Events:Table(){
     val id = uuid("id").autoGenerate()
     val name = varchar("name", 50)
@@ -20,8 +29,9 @@ object Events:Table(){
 
     override val primaryKey = PrimaryKey(id)
 }
+
 fun createClubsTable() {
     transaction {
-        SchemaUtils.create(Clubs, Events)
+        SchemaUtils.create(Clubs, Events, Users)
     }
 }

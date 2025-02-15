@@ -4,8 +4,10 @@ import com.example.data.database.DatabaseFactory
 import com.example.data.database.createClubsTable
 import com.example.data.datasource.AzureDataSource
 import com.example.data.datasource.AzureEventDataSource
+import com.example.data.datasource.AzureUserDataSource
 import com.example.plugins.configureMonitoring
 import com.example.plugins.configureRouting
+import com.example.plugins.configureSecurity
 //import com.example.plugins.configureSecurity
 import com.example.plugins.configureSerialization
 import io.ktor.server.application.*
@@ -21,12 +23,12 @@ fun Application.module() {
     val database = Database.connect(dataSource)
     val clubDataSource = AzureDataSource(database)
     val eventsDataSource = AzureEventDataSource(database)
-
+    val userDataSource = AzureUserDataSource(database)
     configureMonitoring()
     configureSerialization()
     createClubsTable()
-//    configureSecurity()
-    configureRouting(clubDataSource = clubDataSource, eventsDataSource = eventsDataSource)
+    configureSecurity()
+    configureRouting(clubDataSource = clubDataSource, eventsDataSource = eventsDataSource, userDataSource = userDataSource)
 }
 
 // Exposed is a library that helps interact with databases in a simpler way using Kotlin code instead of writing raw SQL.
