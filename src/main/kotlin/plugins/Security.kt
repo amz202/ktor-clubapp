@@ -29,3 +29,5 @@ fun Application.configureSecurity() {
         }
     }
 }
+// The request first passes through Firebase authentication, validating the token and creating `MyAuthenticatedUser`.
+// The authenticated user is then accessible in routes via "call.principal<MyAuthenticatedUser>()".
