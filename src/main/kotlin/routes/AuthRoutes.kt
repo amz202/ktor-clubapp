@@ -11,11 +11,11 @@ import io.ktor.server.routing.*
 
 fun Route.login(userDataSource: UserDataSource) {
     authenticate {
-        get("/login") {
+        post("/login") {
             val principal = call.principal<MyAuthenticatedUser>()
             if (principal == null) {
                 call.respond(HttpStatusCode.Unauthorized, TextContent("Invalid token", ContentType.Text.Plain))
-                return@get
+                return@post
             }
 
             val user = User(id = principal.id, email = principal.email, name = principal.email.split("@")[0])

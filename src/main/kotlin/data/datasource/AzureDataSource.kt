@@ -25,7 +25,7 @@ class AzureDataSource(private val database: Database) : ClubDataSource {
 
     override suspend fun createClub(club: Club): Boolean = newSuspendedTransaction(db = database) {
         val result = Clubs.insert {
-            it[id] = club.id
+            it[id] = club.id   //'it' refers to the columns in the table
             it[name] = club.name
             it[description] = club.description
         }

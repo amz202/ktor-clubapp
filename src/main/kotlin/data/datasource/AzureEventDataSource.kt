@@ -25,7 +25,7 @@ class AzureEventDataSource(private val database: Database) : EventsDataSource {
             it[id] = event.id
             it[name] = event.name
             it[description] = event.description
-            it[clubId] = UUID.fromString(event.clubId) // ✅ Convert String to UUID
+            it[clubId] = UUID.fromString(event.clubId)
         }
         result.insertedCount > 0
     }
@@ -35,7 +35,7 @@ class AzureEventDataSource(private val database: Database) : EventsDataSource {
         deleted > 0
     }
 
-    private fun rowToEvent(row: ResultRow) = Event(
+    private fun rowToEvent(row: ResultRow) = Event( //converts the row response from database to Event object
         id = row[Events.id],
         name = row[Events.name],
         description = row[Events.description],
