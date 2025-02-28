@@ -19,7 +19,7 @@ import org.slf4j.event.*
 fun Application.configureSecurity() {
     install(Authentication) {
         firebase {
-            adminFile = File("C:\\Users\\amz20\\firebase_key\\club\\clubapp-672ce-firebase-adminsdk-fbsvc-a5ead4fb4c.json")
+            adminFile = File("C:\\Users\\amz20\\firebase_key\\club\\clubapp-f255a-firebase-adminsdk-fbsvc-fc41eebff2.json")
             realm = "My Server"
             validate { token ->
                 MyAuthenticatedUser(

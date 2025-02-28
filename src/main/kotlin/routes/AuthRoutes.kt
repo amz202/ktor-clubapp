@@ -17,10 +17,19 @@ fun Route.login(userDataSource: UserDataSource) {
                 call.respond(HttpStatusCode.Unauthorized, TextContent("Invalid token", ContentType.Text.Plain))
                 return@post
             }
+            val existingUser = userDataSource.getUser(principal.id)
 
-            val user = User(id = principal.id, email = principal.email, name = principal.email.split("@")[0])
-            userDataSource.createUser(user) // Save user if first login
-            call.respond(HttpStatusCode.OK, user)
+            if (existingUser == null) {
+                val newUser = User(
+                    id = principal.id,
+                    email = principal.email,
+                    name = principal.email.split("@")[0]
+                )
+                userDataSource.createUser(newUser)
+                call.respond(HttpStatusCode.Created, newUser)
+            } else {
+                call.respond(HttpStatusCode.OK, existingUser)
+            }
         }
     }
 }
