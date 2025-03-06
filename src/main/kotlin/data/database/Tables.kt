@@ -17,6 +17,7 @@ object Users : Table(){
     val id = varchar("id", 50)
     val email = varchar("email", 255).uniqueIndex()
     val name = varchar("name", 50)
+    val role = varchar("role",10).default("student")
 
     override val primaryKey = PrimaryKey(id)
 }

@@ -27,7 +27,7 @@ fun Application.module() {
     configureMonitoring()
     configureSerialization()
     createClubsTable()
-    configureSecurity()
+    configureSecurity(userDataSource)
     configureRouting(clubDataSource = clubDataSource, eventsDataSource = eventsDataSource, userDataSource = userDataSource)
 }
 

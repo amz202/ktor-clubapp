@@ -23,7 +23,8 @@ fun Route.login(userDataSource: UserDataSource) {
                 val newUser = User(
                     id = principal.id,
                     email = principal.email,
-                    name = principal.email.split("@")[0]
+                    name = principal.email.split("@")[0],
+                    role = "student"
                 )
                 userDataSource.createUser(newUser)
                 call.respond(HttpStatusCode.Created, newUser)
