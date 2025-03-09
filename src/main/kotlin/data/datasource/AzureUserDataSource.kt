@@ -26,4 +26,14 @@ class AzureUserDataSource(private val database: Database) : UserDataSource {
         }
         !exists
     }
+
+    override suspend fun changeRole(id: String, role: String): Boolean = newSuspendedTransaction(db = database)  {
+        val exists = getUser(id) != null
+        if (exists) {
+            Users.update({ Users.id eq id }){
+                it[Users.role] = role
+            }
+        }
+        exists
+    }
 }

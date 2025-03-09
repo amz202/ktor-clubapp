@@ -21,6 +21,7 @@ fun Application.configureRouting(clubDataSource: ClubDataSource, eventsDataSourc
         getEvents(eventsDataSource)
         createEvent(eventsDataSource)
         deleteEvent(eventsDataSource)
+        changeRole(userDataSource)
         login(userDataSource)
     }
 }

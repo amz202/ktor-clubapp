@@ -1,11 +1,14 @@
 package com.example.routes
 
 import com.example.data.datasource.UserDataSource
+import com.example.data.model.Club
 import com.example.data.model.MyAuthenticatedUser
+import com.example.data.model.Requests.RoleRequest
 import com.example.data.model.User
 import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.server.auth.*
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
@@ -31,6 +34,25 @@ fun Route.login(userDataSource: UserDataSource) {
             } else {
                 call.respond(HttpStatusCode.OK, existingUser)
             }
+        }
+    }
+}
+
+fun Route.changeRole(userDataSource: UserDataSource) {
+    post("/change-role") {
+        val request = try {
+            call.receive<RoleRequest>()
+        } catch (e: Exception) {
+            call.respond(HttpStatusCode.BadRequest, "Invalid request body")
+            return@post
+        }
+        val id = request.id
+        val role = request.role
+        val changeRole = userDataSource.changeRole(id = id, role = role)
+        if (changeRole) {
+            call.respond(HttpStatusCode.OK, "Role changed")
+        } else {
+            call.respond(HttpStatusCode.NotFound, "User not found")
         }
     }
 }
