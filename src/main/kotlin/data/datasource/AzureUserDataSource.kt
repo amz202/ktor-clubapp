@@ -10,7 +10,7 @@ class AzureUserDataSource(private val database: Database) : UserDataSource {
 
     override suspend fun getUser(id: String): User? = newSuspendedTransaction(db = database) {
         Users.selectAll().where { Users.id eq id }
-            .map { User(it[Users.id], it[Users.email], it[Users.name], it[Users.role]) }
+            .map { User(it[Users.id], it[Users.email], it[Users.name], it[Users.role], it[Users.schoolName]) }
             .singleOrNull()
     }
 
@@ -22,6 +22,7 @@ class AzureUserDataSource(private val database: Database) : UserDataSource {
                 it[email] = user.email
                 it[name] = user.name
                 it[role] = user.role
+                it[schoolName] = user.schoolName
             }
         }
         !exists

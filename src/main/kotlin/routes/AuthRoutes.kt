@@ -27,7 +27,8 @@ fun Route.login(userDataSource: UserDataSource) {
                     id = principal.id,
                     email = principal.email,
                     name = principal.email.split("@")[0],
-                    role = "student"
+                    role = "student",
+                    schoolName = principal.schoolName
                 )
                 userDataSource.createUser(newUser)
                 call.respond(HttpStatusCode.Created, newUser)

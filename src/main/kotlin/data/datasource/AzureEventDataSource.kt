@@ -6,6 +6,7 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import java.util.UUID
+import com.example.data.datasource.helpers.rowToEvent
 
 class AzureEventDataSource(private val database: Database) : EventsDataSource {
 
@@ -26,6 +27,10 @@ class AzureEventDataSource(private val database: Database) : EventsDataSource {
             it[name] = event.name
             it[description] = event.description
             it[clubId] = UUID.fromString(event.clubId)
+            it[dateTime] = event.dateTime
+            it[location] = event.location
+            it[capacity] = event.capacity?.toInt()
+            it[organizedBy] = event.organizedBy
         }
         result.insertedCount > 0
     }
@@ -35,10 +40,4 @@ class AzureEventDataSource(private val database: Database) : EventsDataSource {
         deleted > 0
     }
 
-    private fun rowToEvent(row: ResultRow) = Event( //converts the row response from database to Event object
-        id = row[Events.id],
-        name = row[Events.name],
-        description = row[Events.description],
-        clubId = row[Events.clubId].toString()
-    )
 }

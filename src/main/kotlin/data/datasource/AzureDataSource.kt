@@ -9,6 +9,8 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.UUID
+import com.example.data.datasource.helpers.rowToEvent
+import com.example.data.datasource.helpers.rowToClub
 
 class AzureDataSource(private val database: Database) : ClubDataSource {
 
@@ -23,11 +25,13 @@ class AzureDataSource(private val database: Database) : ClubDataSource {
             .map { rowToClub(it) }
     }
 
-    override suspend fun createClub(club: Club): Boolean = newSuspendedTransaction(db = database) {
+    override suspend fun createClub(club: Club, creator:String): Boolean = newSuspendedTransaction(db = database) {
         val result = Clubs.insert {
             it[id] = club.id   //'it' refers to the columns in the table
             it[name] = club.name
             it[description] = club.description
+            it[createdBy] = creator
+            it[createdOn] = org.jetbrains.exposed.sql.javatime.CurrentDateTime
         }
         result.insertedCount > 0
     }
@@ -36,22 +40,9 @@ class AzureDataSource(private val database: Database) : ClubDataSource {
         val deleted = Clubs.deleteWhere { Clubs.id eq id }
         deleted > 0
     }
-
-    override suspend fun getClubEvents(clubId: UUID): List<Event> = newSuspendedTransaction(db = database) {
-        Events.selectAll().where { Events.clubId eq clubId }
+    override suspend fun getClubEvents(clubId: UUID): List<Event>? = newSuspendedTransaction(db = database) {
+        val events = Events.selectAll().where { Events.clubId eq clubId }
             .map { rowToEvent(it) }
+        events.ifEmpty { null }
     }
-
-    private fun rowToEvent(row: ResultRow) = Event(
-        id = row[Events.id],
-        clubId = row[Events.clubId].toString(),
-        name = row[Events.name],
-        description = row[Events.description],
-    )
-
-    private fun rowToClub(row: ResultRow) = Club(
-        id = row[Clubs.id],
-        name = row[Clubs.name],
-        description = row[Clubs.description]
-    )
 }

@@ -39,7 +39,11 @@ fun Route.createEvent(eventsDataSource: EventsDataSource) {
             val event = Event(
                 name = eventRequest.name,
                 description = eventRequest.description,
-                clubId = eventRequest.clubId
+                clubId = eventRequest.clubId,
+                dateTime = eventRequest.dateTime,
+                location = eventRequest.location,
+                capacity = eventRequest.capacity,
+                organizedBy = eventRequest.organizedBy
             )
             val result = eventsDataSource.createEvent(event)
             if (result) {

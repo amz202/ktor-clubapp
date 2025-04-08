@@ -52,5 +52,7 @@ dependencies {
     implementation("io.ktor:ktor-server-config-yaml")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
 
+    implementation("org.jetbrains.exposed:exposed-java-time:0.45.0")
+
     implementation("com.zaxxer:HikariCP:5.1.0")
 }

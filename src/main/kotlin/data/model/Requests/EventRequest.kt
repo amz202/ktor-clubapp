@@ -6,5 +6,9 @@ import kotlinx.serialization.Serializable
 data class EventRequest(
     val name: String,
     val description: String,
-    val clubId: String
+    val clubId: String?,
+    val dateTime : String,
+    val location: String,
+    val capacity: String?,
+    val organizedBy:String
 )

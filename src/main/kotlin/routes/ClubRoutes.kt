@@ -1,6 +1,8 @@
 package com.example.routes
 
+import com.example.data.database.Users.role
 import com.example.data.datasource.ClubDataSource
+import com.example.data.datasource.ClubMemberDataSource
 import com.example.data.model.Club
 import com.example.data.model.MyAuthenticatedUser
 import com.example.data.model.Requests.ClubEventsRequest
@@ -35,7 +37,7 @@ fun Route.getClubs(clubDataSource: ClubDataSource) {
     }
 }
 
-fun Route.createClub(clubDataSource: ClubDataSource) {
+fun Route.createClub(clubDataSource: ClubDataSource, clubMemberDataSource: ClubMemberDataSource) {
     authenticate {
         post("/clubs") {
             val principal = call.principal<MyAuthenticatedUser>()
@@ -60,12 +62,15 @@ fun Route.createClub(clubDataSource: ClubDataSource) {
                 name = clubRequest.name,
                 description = clubRequest.description
             )
-            val result = clubDataSource.createClub(club)
-            if (result) {
+            val result = principal.name?.let { clubDataSource.createClub(club, it) }
+            if (result == true) {
                 call.respond(HttpStatusCode.Created, club)
+                // Add the creator as a member of the club
+                clubMemberDataSource.joinClub(club.id, principal.id, "creator")
             } else {
                 call.respond(HttpStatusCode.InternalServerError, "Couldn't create club")
             }
+
         }
     }
 }
@@ -92,7 +97,11 @@ fun Route.getClubEvents(clubDataSource: ClubDataSource) {
             val clubId = UUID.fromString(request.clubId) // ✅ Convert String to UUID
 
             val events = clubDataSource.getClubEvents(clubId)
-            call.respond(HttpStatusCode.OK, events)
+            if (events == null) {
+                call.respond(HttpStatusCode.NotFound, "No events found for the specified club")
+            } else {
+                call.respond(HttpStatusCode.OK, events)
+            }
         } catch (e: IllegalArgumentException) {
             call.respond(HttpStatusCode.BadRequest, "Invalid UUID format")
         } catch (e: Exception) {

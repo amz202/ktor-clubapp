@@ -9,5 +9,9 @@ data class Event(
     @Serializable(with = UUIDSerializer::class) val id: UUID = UUID.randomUUID(),
     val name: String,
     val description: String,
-    val clubId: String
+    val clubId: String?,
+    val dateTime : String,
+    val location: String,
+    val capacity: String?,
+    val organizedBy:String
 )
