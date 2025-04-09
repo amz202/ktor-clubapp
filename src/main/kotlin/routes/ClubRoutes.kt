@@ -1,19 +1,16 @@
 package com.example.routes
 
-import com.example.data.database.Users.role
 import com.example.data.datasource.ClubDataSource
 import com.example.data.datasource.ClubMemberDataSource
 import com.example.data.model.Club
 import com.example.data.model.MyAuthenticatedUser
 import com.example.data.model.Requests.ClubEventsRequest
 import io.ktor.http.*
+import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import java.util.*
-import kotlin.text.get
-import io.ktor.http.*
-import io.ktor.server.auth.*
 
 fun Route.getClub(clubDataSource: ClubDataSource) {
     get("/clubs/{id}") {

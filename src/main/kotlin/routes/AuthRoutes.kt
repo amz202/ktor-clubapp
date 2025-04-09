@@ -4,6 +4,7 @@ import com.example.data.datasource.UserDataSource
 import com.example.data.model.Club
 import com.example.data.model.MyAuthenticatedUser
 import com.example.data.model.Requests.RoleRequest
+import com.example.data.model.Requests.UserRoleRequest
 import com.example.data.model.User
 import io.ktor.http.*
 import io.ktor.http.content.*
@@ -42,7 +43,7 @@ fun Route.login(userDataSource: UserDataSource) {
 fun Route.changeRole(userDataSource: UserDataSource) {
     post("/change-role") {
         val request = try {
-            call.receive<RoleRequest>()
+            call.receive<UserRoleRequest>()
         } catch (e: Exception) {
             call.respond(HttpStatusCode.BadRequest, "Invalid request body")
             return@post

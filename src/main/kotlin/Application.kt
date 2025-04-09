@@ -2,9 +2,7 @@ package com.example
 
 import com.example.data.database.DatabaseFactory
 import com.example.data.database.createClubsTable
-import com.example.data.datasource.AzureDataSource
-import com.example.data.datasource.AzureEventDataSource
-import com.example.data.datasource.AzureUserDataSource
+import com.example.data.datasource.*
 import com.example.plugins.configureMonitoring
 import com.example.plugins.configureRouting
 import com.example.plugins.configureSecurity
@@ -24,11 +22,20 @@ fun Application.module() {
     val clubDataSource = AzureDataSource(database)
     val eventsDataSource = AzureEventDataSource(database)
     val userDataSource = AzureUserDataSource(database)
+    val clubMemberDataSource = AzureClubMemberDataSource(database)
+    val eventParticipantDataSource = AzureEventParticipantDataSource(database)
+
     configureMonitoring()
     configureSerialization()
     createClubsTable()
     configureSecurity(userDataSource)
-    configureRouting(clubDataSource = clubDataSource, eventsDataSource = eventsDataSource, userDataSource = userDataSource)
+    configureRouting(
+        clubDataSource = clubDataSource,
+        eventsDataSource = eventsDataSource,
+        userDataSource = userDataSource,
+        clubMemberDataSource = clubMemberDataSource,
+        eventParticipantDataSource = eventParticipantDataSource,
+    )
 }
 
 // Exposed is a library that helps interact with databases in a simpler way using Kotlin code instead of writing raw SQL.

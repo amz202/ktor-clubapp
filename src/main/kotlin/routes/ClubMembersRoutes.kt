@@ -2,7 +2,7 @@ package com.example.routes
 
 import com.example.data.datasource.ClubMemberDataSource
 import com.example.data.model.MyAuthenticatedUser
-import com.example.data.model.Requests.ClubRoleRequest
+import com.example.data.model.Requests.RoleRequest
 import io.ktor.http.*
 import io.ktor.server.auth.*
 import io.ktor.server.request.*
@@ -123,7 +123,7 @@ fun Route.changeClubMemberRole(clubMemberDataSource: ClubMemberDataSource) {
                 return@post
             }
             val request = try {
-                call.receive<ClubRoleRequest>()
+                call.receive<RoleRequest>()
             } catch (e: Exception) {
                 call.respond(HttpStatusCode.BadRequest, "Invalid request body")
                 return@post

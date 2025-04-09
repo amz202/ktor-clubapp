@@ -4,8 +4,10 @@ import com.example.data.datasource.AzureEventDataSource
 import com.example.data.datasource.EventParticipantDataSource
 import com.example.data.datasource.EventsDataSource
 import com.example.data.model.MyAuthenticatedUser
+import com.example.data.model.Requests.RoleRequest
 import io.ktor.http.*
 import io.ktor.server.auth.*
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import java.time.LocalDateTime
@@ -135,12 +137,13 @@ fun Route.changeEventRole(eventParticipantDataSource: EventParticipantDataSource
                 call.respond(HttpStatusCode.Unauthorized, "User not authenticated")
                 return@post
             }
-            val role = call.request.queryParameters["role"]
-            if (role == null || (role != "head" && role != "attendee")) {
-                call.respond(HttpStatusCode.BadRequest, "Invalid role")
+            val role = try {
+                call.receive<RoleRequest>()
+            } catch (e: Exception) {
+                call.respond(HttpStatusCode.BadRequest, "Invalid request body")
                 return@post
             }
-            val result = eventParticipantDataSource.changeEventRole(eventId, userId, role)
+            val result = eventParticipantDataSource.changeEventRole(eventId, userId, role.role)
             if (result) {
                 call.respond(HttpStatusCode.OK, "Successfully changed role")
             } else {
