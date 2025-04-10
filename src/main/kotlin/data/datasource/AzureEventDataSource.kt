@@ -26,7 +26,9 @@ class AzureEventDataSource(private val database: Database) : EventsDataSource {
             it[id] = event.id
             it[name] = event.name
             it[description] = event.description
-            it[clubId] = UUID.fromString(event.clubId)
+            it[clubId] = event.clubId?.takeIf {
+                it.isNotBlank()
+            }?.let { UUID.fromString(it) }
             it[dateTime] = event.dateTime
             it[location] = event.location
             it[capacity] = event.capacity?.toInt()

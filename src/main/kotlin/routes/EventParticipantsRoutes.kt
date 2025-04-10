@@ -152,3 +152,30 @@ fun Route.changeEventRole(eventParticipantDataSource: EventParticipantDataSource
         }
     }
 }
+
+fun Route.getEventRole(eventParticipantDataSource: EventParticipantDataSource){
+    authenticate {
+        get("/events/{eventId}/user/{userId}/role") {
+            val eventId = try {
+                call.parameters["eventId"]?.let { UUID.fromString(it) }
+            } catch (e: IllegalArgumentException) {
+                null
+            }
+            val userId = try{
+                call.parameters["userId"]?.let { UUID.fromString(it) }
+            } catch (e: IllegalArgumentException) {
+                null
+            }
+            if (eventId == null || userId == null) {
+                call.respond(HttpStatusCode.BadRequest, "Missing or invalid eventId or userId")
+                return@get
+            }
+            val role = eventParticipantDataSource.getEventRole(eventId, userId.toString())
+            if (role != null) {
+                call.respond(HttpStatusCode.OK, role)
+            } else {
+                call.respond(HttpStatusCode.NotFound, "No role found for this user in the event")
+            }
+        }
+    }
+}

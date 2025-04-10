@@ -41,6 +41,12 @@ class AzureEventParticipantDataSource(private val database: Database) : EventPar
         updated > 0
     }
 
+    override suspend fun getEventRole(eventId: UUID, userId: String): String? = newSuspendedTransaction(db = database){
+        EventParticipants.selectAll().where { (EventParticipants.eventId eq eventId) and (EventParticipants.userId eq userId) }
+            .map { it[EventParticipants.eventRole] }
+            .singleOrNull()
+    }
+
     private fun rowToEventParticipant(row: ResultRow): EventParticipant {
         return EventParticipant(
             userId = row[EventParticipants.userId],

@@ -43,6 +43,12 @@ class AzureClubMemberDataSource(private val database: Database) : ClubMemberData
         updated > 0
     }
 
+    override suspend fun getClubRole(clubId: UUID, userId: String): String? = newSuspendedTransaction(db = database) {
+        ClubMembers.selectAll().where { (ClubMembers.clubId eq clubId) and (ClubMembers.userId eq userId) }
+            .map { it[ClubMembers.clubRole] }
+            .singleOrNull()
+    }
+
     private fun rowToClubMember(row: ResultRow): ClubMember {
         return ClubMember(
             userId = row[ClubMembers.userId],

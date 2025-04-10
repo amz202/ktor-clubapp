@@ -9,4 +9,5 @@ interface EventParticipantDataSource {
     suspend fun joinEvent(eventId: UUID, userId: String, role: String): Boolean
     suspend fun leaveEvent(eventId: UUID, userId: String): Boolean
     suspend fun changeEventRole(eventId: UUID, userId: String, role: String): Boolean
+    suspend fun getEventRole(eventId: UUID, userId: String): String?
 }

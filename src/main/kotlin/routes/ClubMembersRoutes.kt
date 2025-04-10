@@ -141,3 +141,30 @@ fun Route.changeClubMemberRole(clubMemberDataSource: ClubMemberDataSource) {
         }
     }
 }
+
+fun Route.getClubRole(clubMemberDataSource: ClubMemberDataSource){
+    authenticate {
+        get("/club/{clubId}/user/{userId}/role") {
+            val clubId = try {
+                call.parameters["clubId"]?.let { UUID.fromString(it) }
+            } catch (e: IllegalArgumentException) {
+                null
+            }
+            val userId = try {
+                call.parameters["userId"]?.let { UUID.fromString(it) }
+            } catch (e: IllegalArgumentException) {
+                null
+            }
+            if (clubId == null || userId == null) {
+                call.respond(HttpStatusCode.BadRequest, "Missing or invalid clubId or userId")
+                return@get
+            }
+            val role = clubMemberDataSource.getClubRole(clubId, userId.toString())
+            if (role != null) {
+                call.respond(HttpStatusCode.OK, role)
+            } else {
+                call.respond(HttpStatusCode.NotFound, "Role not found")
+            }
+        }
+    }
+}

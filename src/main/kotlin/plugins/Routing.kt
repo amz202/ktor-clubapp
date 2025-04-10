@@ -27,6 +27,7 @@ fun Application.configureRouting(
         leaveClub(clubMemberDataSource)
         getUsersClubs(clubMemberDataSource)
         changeClubMemberRole(clubMemberDataSource)
+        getClubRole(clubMemberDataSource)
 
         // Event routes
         getEvent(eventsDataSource)
@@ -40,6 +41,7 @@ fun Application.configureRouting(
         getEventParticipants(eventParticipantDataSource)
         getUserEvents(eventParticipantDataSource)
         changeEventRole(eventParticipantDataSource)
+        getEventRole(eventParticipantDataSource)
 
         // User routes
         changeRole(userDataSource)
