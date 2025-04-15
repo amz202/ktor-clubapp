@@ -11,6 +11,7 @@ data class Club(
     @Serializable(with = UUIDSerializer::class) val id: UUID = UUID.randomUUID(),
     val name: String,
     val description: String,
-
-    val createdOn: String = LocalDateTime.now().toString()
+    val tags:String,
+    val createdOn: String = LocalDateTime.now().toString(),
+    val createdBy:String
 )

@@ -7,5 +7,7 @@ import org.jetbrains.exposed.sql.ResultRow
 fun rowToClub(row: ResultRow) = Club(
     id = row[Clubs.id],
     name = row[Clubs.name],
-    description = row[Clubs.description]
+    description = row[Clubs.description],
+    tags = row[Clubs.tags],
+    createdBy = row[Clubs.createdBy],
 )

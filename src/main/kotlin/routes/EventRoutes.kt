@@ -43,9 +43,10 @@ fun Route.createEvent(eventsDataSource: EventsDataSource) {
                 dateTime = eventRequest.dateTime,
                 location = eventRequest.location,
                 capacity = eventRequest.capacity,
-                organizedBy = eventRequest.organizedBy
+                organizedBy = eventRequest.organizedBy,
+                tags = eventRequest.tags
             )
-            val result = eventsDataSource.createEvent(event)
+            val result = eventsDataSource.createEvent(event) //this means that we call this function right away and store its value in variable
             if (result) {
                 call.respond(HttpStatusCode.Created, event)
             } else {

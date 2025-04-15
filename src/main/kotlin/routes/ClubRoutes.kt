@@ -5,6 +5,7 @@ import com.example.data.datasource.ClubMemberDataSource
 import com.example.data.model.Club
 import com.example.data.model.MyAuthenticatedUser
 import com.example.data.model.Requests.ClubEventsRequest
+import com.example.data.model.Requests.ClubRequest
 import io.ktor.http.*
 import io.ktor.server.auth.*
 import io.ktor.server.request.*
@@ -44,7 +45,7 @@ fun Route.createClub(clubDataSource: ClubDataSource, clubMemberDataSource: ClubM
             }
 
             val clubRequest = try {
-                call.receive<Club>()
+                call.receive<ClubRequest>()
             } catch (e: Exception) {
                 call.respond(HttpStatusCode.BadRequest, "Invalid request body")
                 return@post
@@ -55,14 +56,17 @@ fun Route.createClub(clubDataSource: ClubDataSource, clubMemberDataSource: ClubM
                 return@post
             }
 
-            val club = Club(
-                name = clubRequest.name,
-                description = clubRequest.description
-            )
-            val result = principal.name?.let { clubDataSource.createClub(club, it) }
+            val club = principal.name?.let {
+                Club(
+                    name = clubRequest.name,
+                    description = clubRequest.description,
+                    tags = clubRequest.tags,
+                    createdBy = it
+                )
+            }
+            val result = club?.let { clubDataSource.createClub(it) }
             if (result == true) {
                 call.respond(HttpStatusCode.Created, club)
-                // Add the creator as a member of the club
                 clubMemberDataSource.joinClub(club.id, principal.id, "creator")
             } else {
                 call.respond(HttpStatusCode.InternalServerError, "Couldn't create club")

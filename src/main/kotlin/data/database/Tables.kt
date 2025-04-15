@@ -13,6 +13,7 @@ object Clubs : Table() {
     val description = text("description")
     val createdOn = datetime("createdOn")
     val createdBy = varchar("createdBy", 50)
+    val tags = varchar("tags", 100)
 
     override val primaryKey = PrimaryKey(id)
 }
@@ -36,6 +37,8 @@ object Events:Table(){
     val location = varchar("location", 100)
     val capacity = integer("capacity").nullable()
     val organizedBy = varchar("organizedBy",50)
+    val tags = varchar("tags", 100)
+
 
     override val primaryKey = PrimaryKey(id)
 }

@@ -13,4 +13,5 @@ fun rowToEvent(row: ResultRow) = Event( //converts the row response from databas
     location = row[Events.location],
     capacity = row[Events.capacity].toString(),
     organizedBy = row[Events.organizedBy],
+    tags = row[Events.tags]
 )

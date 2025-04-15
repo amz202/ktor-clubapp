@@ -1,9 +1,9 @@
-package com.example.data.model.Requests
+package com.example.data.model.Response
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class EventRequest(
+data class EventResponse(
     val name: String,
     val description: String,
     val clubId: String?,
@@ -11,5 +11,7 @@ data class EventRequest(
     val location: String,
     val capacity: String?,
     val organizedBy:String,
-    val tags:String
+    val id: String,
+    val attendeeCount: Int,
+    val tags: String
 )
