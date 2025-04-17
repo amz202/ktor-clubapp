@@ -20,6 +20,7 @@ fun Application.configureRouting(
         createClub(clubDataSource, clubMemberDataSource)
         deleteClub(clubDataSource)
         getClubEvents(clubDataSource)
+        getMyClubs(clubDataSource)
 
         // Club member routes
         getClubsMembers(clubMemberDataSource)
@@ -34,6 +35,7 @@ fun Application.configureRouting(
         getEvents(eventsDataSource)
         createEvent(eventsDataSource)
         deleteEvent(eventsDataSource)
+        getMyEvents(eventsDataSource)
 
         // Event participant routes
         joinEvent(eventParticipantDataSource)

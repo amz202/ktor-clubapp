@@ -2,8 +2,10 @@ package com.example.routes
 
 import com.example.data.datasource.EventsDataSource
 import com.example.data.model.Event
+import com.example.data.model.MyAuthenticatedUser
 import com.example.data.model.Requests.EventRequest
 import io.ktor.http.*
+import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -13,6 +15,25 @@ fun Route.getEvents(eventsDataSource: EventsDataSource) {
     get("/events") {
         val events = eventsDataSource.getEvents()
         call.respond(events)
+    }
+}
+
+fun Route.getMyEvents(eventsDataSource: EventsDataSource){
+    authenticate {
+        get("/user/events"){
+            val principal = call.principal<MyAuthenticatedUser>()
+            if (principal == null) {
+                call.respond(HttpStatusCode.Unauthorized, "Unauthorized")
+                return@get
+            }
+            val userId = principal.id
+            val events = eventsDataSource.getMyEvents(userId)
+            if (events == null) {
+                call.respond(HttpStatusCode.NotFound, "No events found for this user")
+            } else {
+                call.respond(HttpStatusCode.OK, events)
+            }
+        }
     }
 }
 

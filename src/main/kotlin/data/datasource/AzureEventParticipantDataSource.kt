@@ -1,17 +1,25 @@
 package com.example.data.datasource
 
 import com.example.data.database.EventParticipants
+import com.example.data.database.Users
 import com.example.data.model.EventParticipant
+import com.example.data.model.Response.EventParticipantsResponse
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import java.util.*
 
 class AzureEventParticipantDataSource(private val database: Database) : EventParticipantDataSource {
-
-    override suspend fun getEventParticipants(eventId: UUID): List<EventParticipant> = newSuspendedTransaction(db = database) {
-        EventParticipants.selectAll().where { EventParticipants.eventId eq eventId }
-            .map { rowToEventParticipant(it) }
+    override suspend fun getEventParticipants(eventId: UUID): List<EventParticipantsResponse> = newSuspendedTransaction(db = database) {
+        (EventParticipants innerJoin Users).selectAll().where{EventParticipants.eventId eq eventId}
+            .map { row ->
+                EventParticipantsResponse(
+                    id = row[Users.id],
+                    name = row[Users.name],
+                    email = row[Users.email],
+                    eventRole = row[EventParticipants.eventRole],
+                )
+            }
     }
 
     override suspend fun getUserEvents(userId: String): List<EventParticipant> = newSuspendedTransaction(db = database) {

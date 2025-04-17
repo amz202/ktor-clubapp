@@ -12,6 +12,6 @@ data class Club(
     val name: String,
     val description: String,
     val tags:String,
-    val createdOn: String = LocalDateTime.now().toString(),
+    val createdOn: String,
     val createdBy:String
 )

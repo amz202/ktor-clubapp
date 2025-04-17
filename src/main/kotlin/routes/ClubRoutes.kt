@@ -11,6 +11,7 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import org.jetbrains.exposed.sql.javatime.CurrentDateTime
 import java.util.*
 
 fun Route.getClub(clubDataSource: ClubDataSource) {
@@ -28,6 +29,7 @@ fun Route.getClub(clubDataSource: ClubDataSource) {
         }
     }
 }
+
 fun Route.getClubs(clubDataSource: ClubDataSource) {
     get("/clubs") {
         val clubs = clubDataSource.getClubs()
@@ -61,7 +63,8 @@ fun Route.createClub(clubDataSource: ClubDataSource, clubMemberDataSource: ClubM
                     name = clubRequest.name,
                     description = clubRequest.description,
                     tags = clubRequest.tags,
-                    createdBy = it
+                    createdBy = it,
+                    createdOn = CurrentDateTime.toString()
                 )
             }
             val result = club?.let { clubDataSource.createClub(it) }
@@ -75,6 +78,7 @@ fun Route.createClub(clubDataSource: ClubDataSource, clubMemberDataSource: ClubM
         }
     }
 }
+
 fun Route.deleteClub(clubDataSource: ClubDataSource) {
     delete("/clubs/{id}") {
         val clubId = call.parameters["id"]?.let { UUID.fromString(it) }
@@ -87,6 +91,26 @@ fun Route.deleteClub(clubDataSource: ClubDataSource) {
             call.respond(HttpStatusCode.OK, "Club deleted")
         } else {
             call.respond(HttpStatusCode.NotFound, "Club not found")
+        }
+    }
+}
+
+fun Route.getMyClubs(clubDataSource: ClubDataSource) {
+    authenticate {
+        get("/user/clubs") {
+            val principal = call.principal<MyAuthenticatedUser>()
+            if (principal == null) {
+                call.respond(HttpStatusCode.Unauthorized, "User not authenticated")
+                return@get
+            }
+
+            val userId = principal.id
+            val clubs = clubDataSource.getMyClubs(userId)
+            if (clubs != null) {
+                call.respond(HttpStatusCode.OK, clubs)
+            } else {
+                call.respond(HttpStatusCode.NotFound, "No clubs found for this user")
+            }
         }
     }
 }

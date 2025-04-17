@@ -9,4 +9,5 @@ interface EventsDataSource {
     suspend fun getEvent(id: UUID): EventResponse?
     suspend fun createEvent(event: Event): Boolean
     suspend fun deleteEvent(id: UUID): Boolean
+    suspend fun getMyEvents(userId: String): List<EventResponse>?
 }

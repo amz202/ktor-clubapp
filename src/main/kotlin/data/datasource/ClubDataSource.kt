@@ -11,4 +11,6 @@ interface ClubDataSource {
     suspend fun createClub(club: Club): Boolean
     suspend fun deleteClub(id: UUID): Boolean
     suspend fun getClubEvents(clubId: UUID): List<Event>?
+    suspend fun getMyClubs(userId: String): List<ClubResponse>? // Renamed function
+
 }

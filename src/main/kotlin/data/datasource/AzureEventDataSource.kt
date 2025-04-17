@@ -54,6 +54,30 @@ class AzureEventDataSource(private val database: Database) : EventsDataSource {
             }
     }
 
+    override suspend fun getMyEvents(userId: String): List<EventResponse>? = newSuspendedTransaction(db = database){
+        val events = EventParticipants.selectAll().where{EventParticipants.userId eq userId}
+            .mapNotNull { row ->
+                val eventId = row[EventParticipants.eventId]
+                val attendeeCount = calculateAttendeeCount(eventId)
+                Events.selectAll().where{Events.id eq eventId}
+                    .map { eventRow ->
+                        EventResponse(
+                            name = eventRow[Events.name],
+                            description = eventRow[Events.description],
+                            clubId = eventRow[Events.clubId]?.toString(),
+                            dateTime = eventRow[Events.dateTime],
+                            location = eventRow[Events.location],
+                            capacity = eventRow[Events.capacity]?.toString(),
+                            organizedBy = eventRow[Events.organizedBy],
+                            id = eventRow[Events.id].toString(),
+                            attendeeCount = attendeeCount,
+                            tags = eventRow[Events.tags]
+                        )
+                    }.singleOrNull()
+            }
+        events.ifEmpty { null }
+    }
+
     override suspend fun createEvent(event: Event): Boolean = newSuspendedTransaction(db = database) {
         val result = Events.insert {
             it[id] = event.id

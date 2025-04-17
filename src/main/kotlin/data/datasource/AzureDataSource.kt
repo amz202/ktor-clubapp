@@ -12,6 +12,7 @@ import java.util.UUID
 import com.example.data.datasource.helpers.rowToEvent
 import com.example.data.datasource.helpers.rowToClub
 import com.example.data.model.Response.ClubResponse
+import org.jetbrains.exposed.sql.javatime.CurrentDateTime
 
 class AzureDataSource(private val database: Database) : ClubDataSource {
 
@@ -51,13 +52,34 @@ class AzureDataSource(private val database: Database) : ClubDataSource {
             }
     }
 
+    override suspend fun getMyClubs(userId: String): List<ClubResponse>? = newSuspendedTransaction(db = database) {
+        val clubs = ClubMembers.selectAll().where { ClubMembers.userId eq userId }
+            .mapNotNull { row ->
+                val clubId = row[ClubMembers.clubId]
+                val memberCount = calculateMemberCount(clubId)
+                Clubs.selectAll().where { Clubs.id eq clubId }
+                    .map { clubRow ->
+                        ClubResponse(
+                            id = clubRow[Clubs.id].toString(),
+                            name = clubRow[Clubs.name],
+                            description = clubRow[Clubs.description],
+                            tags = clubRow[Clubs.tags],
+                            createdOn = clubRow[Clubs.createdOn].toString(),
+                            createdBy = clubRow[Clubs.createdBy],
+                            memberCount = memberCount
+                        )
+                    }.singleOrNull()
+            }
+        clubs.ifEmpty { null }
+    }
+
     override suspend fun createClub(club: Club): Boolean = newSuspendedTransaction(db = database) {
         val result = Clubs.insert {
             it[id] = club.id   //'it' refers to the columns in the table
             it[name] = club.name
             it[description] = club.description
             it[createdBy] = club.createdBy
-            it[createdOn] = org.jetbrains.exposed.sql.javatime.CurrentDateTime
+            it[createdOn] = CurrentDateTime
             it[tags] = club.tags
         }
         result.insertedCount > 0

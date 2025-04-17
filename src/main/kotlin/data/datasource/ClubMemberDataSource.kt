@@ -1,10 +1,11 @@
 package com.example.data.datasource
 
 import com.example.data.model.ClubMember
+import com.example.data.model.Response.ClubMembersResponse
 import java.util.*
 
 interface ClubMemberDataSource {
-    suspend fun getClubsMembers(clubId: UUID): List<ClubMember>
+    suspend fun getClubsMembers(clubId: UUID): List<ClubMembersResponse>
     suspend fun getUsersClubs(userId: String): List<ClubMember>
     suspend fun joinClub(clubId: UUID, userId: String, role:String): Boolean
     suspend fun leaveClub(clubId: UUID, userId: String): Boolean

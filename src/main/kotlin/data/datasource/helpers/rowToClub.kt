@@ -10,4 +10,5 @@ fun rowToClub(row: ResultRow) = Club(
     description = row[Clubs.description],
     tags = row[Clubs.tags],
     createdBy = row[Clubs.createdBy],
+    createdOn = row[Clubs.createdOn].toString(),
 )
