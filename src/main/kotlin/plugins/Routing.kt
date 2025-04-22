@@ -38,7 +38,7 @@ fun Application.configureRouting(
         getMyEvents(eventsDataSource)
 
         // Event participant routes
-        joinEvent(eventParticipantDataSource)
+        joinEvent(eventParticipantDataSource, eventsDataSource)
         leaveEvent(eventParticipantDataSource, eventsDataSource)
         getEventParticipants(eventParticipantDataSource)
         getUserEvents(eventParticipantDataSource)

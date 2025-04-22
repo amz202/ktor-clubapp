@@ -107,32 +107,32 @@ fun Route.getUsersClubs(clubMemberDataSource: ClubMemberDataSource) {
 
 fun Route.changeClubMemberRole(clubMemberDataSource: ClubMemberDataSource) {
     authenticate {
-        post("/club/{clubId}/user/{userId}/change-role") {
+        post("/club/{clubId}/{userId}/change-role") {
             val clubId = try {
                 call.parameters["clubId"]?.let { UUID.fromString(it) }
             } catch (e: IllegalArgumentException) {
                 null
             }
-            val userId = try {
-                call.parameters["userId"]?.let { UUID.fromString(it) }
-            } catch (e: IllegalArgumentException) {
-                null
-            }
+            val userId = call.parameters["userId"]
+
             if (clubId == null || userId == null) {
                 call.respond(HttpStatusCode.BadRequest, "Missing or invalid clubId or userId")
                 return@post
             }
+
             val request = try {
                 call.receive<RoleRequest>()
             } catch (e: Exception) {
                 call.respond(HttpStatusCode.BadRequest, "Invalid request body")
                 return@post
             }
+
             val result = clubMemberDataSource.changeRole(
                 clubId = clubId,
-                userId = userId.toString(),
+                userId = userId,
                 role = request.role
             )
+
             if (result) {
                 call.respond(HttpStatusCode.OK, "Role updated successfully")
             } else {
@@ -144,18 +144,18 @@ fun Route.changeClubMemberRole(clubMemberDataSource: ClubMemberDataSource) {
 
 fun Route.getClubRole(clubMemberDataSource: ClubMemberDataSource){
     authenticate {
-        get("/club/{clubId}/user/{userId}/role") {
+        get("/club/{clubId}/role") {
             val clubId = try {
                 call.parameters["clubId"]?.let { UUID.fromString(it) }
             } catch (e: IllegalArgumentException) {
                 null
             }
-            val userId = try {
-                call.parameters["userId"]?.let { UUID.fromString(it) }
-            } catch (e: IllegalArgumentException) {
-                null
+            val userId = call.principal<MyAuthenticatedUser>()?.id
+            if (userId == null) {
+                call.respond(HttpStatusCode.Unauthorized, "User not authenticated")
+                return@get
             }
-            if (clubId == null || userId == null) {
+            if (clubId == null) {
                 call.respond(HttpStatusCode.BadRequest, "Missing or invalid clubId or userId")
                 return@get
             }

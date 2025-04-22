@@ -2,6 +2,7 @@ package com.example.data.datasource
 
 import com.example.data.database.ClubMembers
 import com.example.data.database.Clubs
+import com.example.data.database.EventParticipants
 import com.example.data.database.Events
 import com.example.data.model.Club
 import com.example.data.model.Event
@@ -12,6 +13,7 @@ import java.util.UUID
 import com.example.data.datasource.helpers.rowToEvent
 import com.example.data.datasource.helpers.rowToClub
 import com.example.data.model.Response.ClubResponse
+import com.example.data.model.Response.EventResponse
 import org.jetbrains.exposed.sql.javatime.CurrentDateTime
 
 class AzureDataSource(private val database: Database) : ClubDataSource {
@@ -89,13 +91,29 @@ class AzureDataSource(private val database: Database) : ClubDataSource {
         val deleted = Clubs.deleteWhere { Clubs.id eq id }
         deleted > 0
     }
-    override suspend fun getClubEvents(clubId: UUID): List<Event>? = newSuspendedTransaction(db = database) {
+    override suspend fun getClubEvents(clubId: UUID): List<EventResponse>? = newSuspendedTransaction(db = database) {
         val events = Events.selectAll().where { Events.clubId eq clubId }
-            .map { rowToEvent(it) }
+            .map { event->
+                EventResponse(
+                    name = event[Events.name],
+                    description = event[Events.description],
+                    clubId = event[Events.clubId]?.toString(),
+                    dateTime = event[Events.dateTime],
+                    location = event[Events.location],
+                    capacity = event[Events.capacity]?.toString(),
+                    organizedBy = event[Events.organizedBy],
+                    id = event[Events.id].toString(),
+                    attendeeCount = calculateAttendeeCount(event[Events.id]),
+                    tags = event[Events.tags]
+                )
+            }
         events.ifEmpty { null }
     }
 
     private suspend fun calculateMemberCount(clubId: UUID): Int = newSuspendedTransaction(db = database) {
         ClubMembers.selectAll().where { ClubMembers.clubId eq clubId }.count().toInt()
+    }
+    private suspend fun calculateAttendeeCount(eventId: UUID): Int = newSuspendedTransaction(db = database) {
+        EventParticipants.selectAll().where { EventParticipants.eventId eq eventId }.count().toInt()
     }
 }

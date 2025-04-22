@@ -4,6 +4,7 @@ import com.example.data.database.EventParticipants
 import com.example.data.database.Users
 import com.example.data.model.EventParticipant
 import com.example.data.model.Response.EventParticipantsResponse
+import com.example.data.model.Response.RoleResponse
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
@@ -49,10 +50,11 @@ class AzureEventParticipantDataSource(private val database: Database) : EventPar
         updated > 0
     }
 
-    override suspend fun getEventRole(eventId: UUID, userId: String): String? = newSuspendedTransaction(db = database){
-        EventParticipants.selectAll().where { (EventParticipants.eventId eq eventId) and (EventParticipants.userId eq userId) }
+    override suspend fun getEventRole(eventId: UUID, userId: String): RoleResponse? = newSuspendedTransaction(db = database){
+        val role = EventParticipants.selectAll().where { (EventParticipants.eventId eq eventId) and (EventParticipants.userId eq userId) }
             .map { it[EventParticipants.eventRole] }
             .singleOrNull()
+        role?.let { RoleResponse(it) }
     }
 
     private fun rowToEventParticipant(row: ResultRow): EventParticipant {

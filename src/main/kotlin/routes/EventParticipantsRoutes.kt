@@ -13,7 +13,7 @@ import io.ktor.server.routing.*
 import java.time.LocalDateTime
 import java.util.*
 
-fun Route.joinEvent(eventParticipantDataSource: EventParticipantDataSource) {
+fun Route.joinEvent(eventParticipantDataSource: EventParticipantDataSource, eventDataSource: EventsDataSource) {
     authenticate {
         post("/events/{eventId}/join") {
             val eventId = try {
@@ -23,6 +23,16 @@ fun Route.joinEvent(eventParticipantDataSource: EventParticipantDataSource) {
             }
             if (eventId == null) {
                 call.respond(HttpStatusCode.BadRequest, "Invalid event ID")
+                return@post
+            }
+            val event = eventDataSource.getEvent(eventId)
+            if(event == null) {
+                call.respond(HttpStatusCode.NotFound, "Event not found")
+                return@post
+            }
+            val eventDateTime = event.dateTime.let { LocalDateTime.parse(it) }
+            if (eventDateTime.isBefore(LocalDateTime.now())) {
+                call.respond(HttpStatusCode.BadRequest, "Cannot join past events")
                 return@post
             }
             val userId = call.principal<MyAuthenticatedUser>()?.id
@@ -122,7 +132,7 @@ fun Route.getUserEvents(eventParticipantDataSource: EventParticipantDataSource) 
 
 fun Route.changeEventRole(eventParticipantDataSource: EventParticipantDataSource) {
     authenticate {
-        post("/events/{eventId}/change-role") {
+        post("/events/{eventId}/{userId}/change-role") {
             val eventId = try {
                 call.parameters["eventId"]?.let { UUID.fromString(it) }
             } catch (e: IllegalArgumentException) {
@@ -132,9 +142,9 @@ fun Route.changeEventRole(eventParticipantDataSource: EventParticipantDataSource
                 call.respond(HttpStatusCode.BadRequest, "Invalid event ID")
                 return@post
             }
-            val userId = call.principal<MyAuthenticatedUser>()?.id
+            val userId = call.parameters["userId"]
             if (userId == null) {
-                call.respond(HttpStatusCode.Unauthorized, "User not authenticated")
+                call.respond(HttpStatusCode.BadRequest, "User ID is required")
                 return@post
             }
             val role = try {
@@ -155,18 +165,18 @@ fun Route.changeEventRole(eventParticipantDataSource: EventParticipantDataSource
 
 fun Route.getEventRole(eventParticipantDataSource: EventParticipantDataSource){
     authenticate {
-        get("/events/{eventId}/user/{userId}/role") {
+        get("/events/{eventId}/role") {
             val eventId = try {
                 call.parameters["eventId"]?.let { UUID.fromString(it) }
             } catch (e: IllegalArgumentException) {
                 null
             }
-            val userId = try{
-                call.parameters["userId"]?.let { UUID.fromString(it) }
-            } catch (e: IllegalArgumentException) {
-                null
+            val userId = call.principal<MyAuthenticatedUser>()?.id
+            if (userId == null) {
+                call.respond(HttpStatusCode.Unauthorized, "User not authenticated")
+                return@get
             }
-            if (eventId == null || userId == null) {
+            if (eventId == null) {
                 call.respond(HttpStatusCode.BadRequest, "Missing or invalid eventId or userId")
                 return@get
             }

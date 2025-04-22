@@ -4,7 +4,6 @@ import com.example.data.datasource.ClubDataSource
 import com.example.data.datasource.ClubMemberDataSource
 import com.example.data.model.Club
 import com.example.data.model.MyAuthenticatedUser
-import com.example.data.model.Requests.ClubEventsRequest
 import com.example.data.model.Requests.ClubRequest
 import io.ktor.http.*
 import io.ktor.server.auth.*
@@ -12,6 +11,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.jetbrains.exposed.sql.javatime.CurrentDateTime
+import java.time.LocalDateTime
 import java.util.*
 
 fun Route.getClub(clubDataSource: ClubDataSource) {
@@ -64,7 +64,7 @@ fun Route.createClub(clubDataSource: ClubDataSource, clubMemberDataSource: ClubM
                     description = clubRequest.description,
                     tags = clubRequest.tags,
                     createdBy = it,
-                    createdOn = CurrentDateTime.toString()
+                    createdOn = LocalDateTime.now().toString()
                 )
             }
             val result = club?.let { clubDataSource.createClub(it) }
@@ -116,10 +116,13 @@ fun Route.getMyClubs(clubDataSource: ClubDataSource) {
 }
 
 fun Route.getClubEvents(clubDataSource: ClubDataSource) {
-    post("/clubs/events") {
+    get("/clubs/{id}/events") {
         try {
-            val request = call.receive<ClubEventsRequest>()
-            val clubId = UUID.fromString(request.clubId) // ✅ Convert String to UUID
+            val clubId = call.parameters["id"]?.let { UUID.fromString(it) }
+            if (clubId == null) {
+                call.respond(HttpStatusCode.BadRequest, "Invalid club ID")
+                return@get
+            }
 
             val events = clubDataSource.getClubEvents(clubId)
             if (events == null) {

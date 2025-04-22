@@ -4,6 +4,7 @@ import com.example.data.database.ClubMembers
 import com.example.data.database.Users
 import com.example.data.model.ClubMember
 import com.example.data.model.Response.ClubMembersResponse
+import com.example.data.model.Response.RoleResponse
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.selectAll
@@ -52,13 +53,12 @@ class AzureClubMemberDataSource(private val database: Database) : ClubMemberData
         updated > 0
     }
 
-    override suspend fun getClubRole(clubId: UUID, userId: String): String? = newSuspendedTransaction(db = database) {
-        ClubMembers.selectAll().where { (ClubMembers.clubId eq clubId) and (ClubMembers.userId eq userId) }
+    override suspend fun getClubRole(clubId: UUID, userId: String): RoleResponse? = newSuspendedTransaction(db = database) {
+        val role = ClubMembers.selectAll().where { (ClubMembers.clubId eq clubId) and (ClubMembers.userId eq userId) }
             .map { it[ClubMembers.clubRole] }
             .singleOrNull()
+        role?.let { RoleResponse(it) }
     }
-
-
 
     private fun rowToClubMember(row: ResultRow): ClubMember {
         return ClubMember(
