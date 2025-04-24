@@ -107,7 +107,7 @@ fun Route.getUsersClubs(clubMemberDataSource: ClubMemberDataSource) {
 
 fun Route.changeClubMemberRole(clubMemberDataSource: ClubMemberDataSource) {
     authenticate {
-        post("/club/{clubId}/{userId}/change-role") {
+        post("/club/{clubId}/{userId}/change-role/{ownRole}") {
             val clubId = try {
                 call.parameters["clubId"]?.let { UUID.fromString(it) }
             } catch (e: IllegalArgumentException) {
@@ -119,7 +119,11 @@ fun Route.changeClubMemberRole(clubMemberDataSource: ClubMemberDataSource) {
                 call.respond(HttpStatusCode.BadRequest, "Missing or invalid clubId or userId")
                 return@post
             }
-
+            val ownRole = call.parameters["ownRole"]
+            if (ownRole == null) {
+                call.respond(HttpStatusCode.BadRequest, "Client's role is required")
+                return@post
+            }
             val request = try {
                 call.receive<RoleRequest>()
             } catch (e: Exception) {
