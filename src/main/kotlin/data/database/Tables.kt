@@ -70,8 +70,17 @@ object EventDetails : Table() {
     override val primaryKey = PrimaryKey(eventId)
 }
 
+object EventNews : Table() {
+    val eventId = uuid("eventId").references(Events.id)
+    val news = varchar("news", 255)
+    val createdOn = datetime("createdOn")
+    val id = uuid("id").autoGenerate()
+
+    override val primaryKey = PrimaryKey(eventId, news)
+}
+
 fun createClubsTable() {
     transaction {
-        SchemaUtils.create(Clubs, Events, Users, ClubMembers, EventDetails, EventParticipants)
+        SchemaUtils.create(Clubs, Events, Users, ClubMembers, EventDetails, EventParticipants, EventNews)
     }
 }
