@@ -1,4 +1,5 @@
 
+import com.example.service.FirebaseManager
 import com.google.auth.oauth2.GoogleCredentials
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
@@ -15,23 +16,12 @@ class FCMService(private val application: Application) {
 
     init {
         try {
-            // Get the path to service account credentials from application config
-            val serviceAccountPath = "C:\\Users\\amz20\\firebase_key\\club\\clubapp-f255a-firebase-adminsdk-fbsvc-fc41eebff2.json"
-            val serviceAccount = FileInputStream(serviceAccountPath)
-
-            // Configure with credentials and initialize Firebase
-            val options = FirebaseOptions.builder()
-                .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                .build()
-
-            if (FirebaseApp.getApps().isEmpty()) {
-                FirebaseApp.initializeApp(options)
+            if (FirebaseManager.getApp() != null) {
+                initialized = true
+                application.log.info("Firebase Cloud Messaging ready to use")
             }
-
-            initialized = true
-            application.log.info("Firebase Cloud Messaging initialized successfully")
         } catch (e: Exception) {
-            application.log.error("Failed to initialize Firebase: ${e.localizedMessage}")
+            application.log.error("Failed to use Firebase: ${e.localizedMessage}")
         }
     }
 

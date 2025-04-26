@@ -9,6 +9,7 @@ import com.example.plugins.configureRouting
 import com.example.plugins.configureSecurity
 //import com.example.plugins.configureSecurity
 import com.example.plugins.configureSerialization
+import com.example.service.FirebaseManager
 import io.ktor.server.application.*
 import org.jetbrains.exposed.sql.Database
 
@@ -17,6 +18,8 @@ fun main(args: Array<String>) {
 }
 
 fun Application.module() {
+    val serviceAccountPath = "C:\\Users\\amz20\\firebase_key\\club\\clubapp-f255a-firebase-adminsdk-fbsvc-fc41eebff2.json"
+    FirebaseManager.initialize(this, serviceAccountPath)
     val dataSource = DatabaseFactory.init()
     val fcmService = FCMService(this)
 
