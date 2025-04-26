@@ -17,10 +17,10 @@ import java.io.File
 import org.jetbrains.exposed.sql.*
 import org.slf4j.event.*
 
-fun Application.configureSecurity(userDataSource: UserDataSource) {
+fun Application.configureSecurity(userDataSource: UserDataSource, serviceAccountPath: String) {
     install(Authentication) {
         firebase {
-            adminFile = File("C:\\Users\\amz20\\firebase_key\\club\\clubapp-f255a-firebase-adminsdk-fbsvc-fc41eebff2.json")
+            adminFile = File(serviceAccountPath)
             realm = "My Server"
             validate { token ->
                 val user = userDataSource.getUser(token.uid)

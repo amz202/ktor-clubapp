@@ -9,7 +9,7 @@ import com.example.plugins.configureRouting
 import com.example.plugins.configureSecurity
 //import com.example.plugins.configureSecurity
 import com.example.plugins.configureSerialization
-import com.example.service.FirebaseManager
+import com.example.service.FirebaseInitializer
 import io.ktor.server.application.*
 import org.jetbrains.exposed.sql.Database
 
@@ -18,12 +18,16 @@ fun main(args: Array<String>) {
 }
 
 fun Application.module() {
+    // Initialize Firebase first thing
     val serviceAccountPath = "C:\\Users\\amz20\\firebase_key\\club\\clubapp-f255a-firebase-adminsdk-fbsvc-fc41eebff2.json"
-    FirebaseManager.initialize(this, serviceAccountPath)
+    FirebaseInitializer.initialize(this, serviceAccountPath)
+
     val dataSource = DatabaseFactory.init()
+    val database = Database.connect(dataSource)
+
+    // FCMService will now use the existing Firebase instance
     val fcmService = FCMService(this)
 
-    val database = Database.connect(dataSource)
     val clubDataSource = AzureDataSource(database)
     val eventsDataSource = AzureEventDataSource(database)
     val userDataSource = AzureUserDataSource(database)
@@ -34,7 +38,7 @@ fun Application.module() {
     configureMonitoring()
     configureSerialization()
     createClubsTable()
-    configureSecurity(userDataSource)
+    configureSecurity(userDataSource, serviceAccountPath)
     configureRouting(
         clubDataSource = clubDataSource,
         eventsDataSource = eventsDataSource,
