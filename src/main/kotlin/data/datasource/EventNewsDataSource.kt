@@ -9,4 +9,5 @@ interface EventNewsDataSource {
     suspend fun getEventNews(eventId: String): List<EventNewsResponse>
     suspend fun getEventNewsById(eventNewsId: String): EventNewsResponse?
     suspend fun deleteEventNews(eventNews: EventNewsRequest): Boolean
+    suspend fun sendEventNewsNotification(eventId: String, newsTitle: String, newsContent: String): Boolean
 }

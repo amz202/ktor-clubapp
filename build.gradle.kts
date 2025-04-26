@@ -55,4 +55,9 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-java-time:0.45.0")
 
     implementation("com.zaxxer:HikariCP:5.1.0")
+
+    // FCM dependencies to add
+    implementation("com.google.firebase:firebase-admin:9.2.0")
+    implementation("com.google.auth:google-auth-library-oauth2-http:1.23.0")
+
 }

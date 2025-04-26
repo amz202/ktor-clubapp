@@ -1,5 +1,6 @@
 package com.example
 
+import FCMService
 import com.example.data.database.DatabaseFactory
 import com.example.data.database.createClubsTable
 import com.example.data.datasource.*
@@ -17,6 +18,7 @@ fun main(args: Array<String>) {
 
 fun Application.module() {
     val dataSource = DatabaseFactory.init()
+    val fcmService = FCMService(this)
 
     val database = Database.connect(dataSource)
     val clubDataSource = AzureDataSource(database)
@@ -24,6 +26,7 @@ fun Application.module() {
     val userDataSource = AzureUserDataSource(database)
     val clubMemberDataSource = AzureClubMemberDataSource(database)
     val eventParticipantDataSource = AzureEventParticipantDataSource(database)
+    val eventNewsDataSource = AzureEventNewsDataSource(database, fcmService)
 
     configureMonitoring()
     configureSerialization()
