@@ -11,7 +11,8 @@ fun Application.configureRouting(
     eventsDataSource: EventsDataSource,
     userDataSource: UserDataSource,
     clubMemberDataSource: ClubMemberDataSource,
-    eventParticipantDataSource: EventParticipantDataSource
+    eventParticipantDataSource: EventParticipantDataSource,
+    eventNewsDataSource: EventNewsDataSource,
 ) {
     routing {
         // Club routes
@@ -33,7 +34,7 @@ fun Application.configureRouting(
         // Event routes
         getEvent(eventsDataSource)
         getEvents(eventsDataSource)
-        createEvent(eventsDataSource)
+        createEvent(eventsDataSource, eventParticipantDataSource)
         deleteEvent(eventsDataSource)
         getMyEvents(eventsDataSource)
 
@@ -48,5 +49,10 @@ fun Application.configureRouting(
         // User routes
         changeRole(userDataSource)
         login(userDataSource)
+
+        //event news
+        getEventNews(eventNewsDataSource, eventsDataSource)
+        createEventNews(eventNewsDataSource, eventsDataSource)
+        deleteEventNews(eventNewsDataSource, eventsDataSource)
     }
 }

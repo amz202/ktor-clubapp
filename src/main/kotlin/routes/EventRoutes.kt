@@ -1,5 +1,6 @@
 package com.example.routes
 
+import com.example.data.datasource.EventParticipantDataSource
 import com.example.data.datasource.EventsDataSource
 import com.example.data.model.Event
 import com.example.data.model.MyAuthenticatedUser
@@ -53,28 +54,36 @@ fun Route.getEvent(eventsDataSource: EventsDataSource) {
     }
 }
 
-fun Route.createEvent(eventsDataSource: EventsDataSource) {
-    post("/events") {
-        try {
-            val eventRequest = call.receive<EventRequest>()
-            val event = Event(
-                name = eventRequest.name,
-                description = eventRequest.description,
-                clubId = eventRequest.clubId,
-                dateTime = eventRequest.dateTime,
-                location = eventRequest.location,
-                capacity = eventRequest.capacity,
-                organizedBy = eventRequest.organizedBy,
-                tags = eventRequest.tags
-            )
-            val result = eventsDataSource.createEvent(event) //this means that we call this function right away and store its value in variable
-            if (result) {
-                call.respond(HttpStatusCode.Created, event)
-            } else {
-                call.respond(HttpStatusCode.InternalServerError, "Couldn't create event")
+fun Route.createEvent(eventsDataSource: EventsDataSource, eventParticipantDataSource: EventParticipantDataSource) {
+    authenticate {
+        post("/events") {
+            try {
+                val eventRequest = call.receive<EventRequest>()
+                val event = Event(
+                    name = eventRequest.name,
+                    description = eventRequest.description,
+                    clubId = eventRequest.clubId,
+                    dateTime = eventRequest.dateTime,
+                    location = eventRequest.location,
+                    capacity = eventRequest.capacity,
+                    organizedBy = eventRequest.organizedBy,
+                    tags = eventRequest.tags
+                )
+                val principal = call.principal<MyAuthenticatedUser>()
+                if (principal == null) {
+                    call.respond(HttpStatusCode.Unauthorized, "User not authenticated")
+                    return@post
+                }
+                val result = eventsDataSource.createEvent(event) //this means that we call this function right away and store its value in variable
+                if (result) {
+                    call.respond(HttpStatusCode.Created, event)
+                    eventParticipantDataSource.joinEvent(eventId = event.id, principal.id, "head" )
+                } else {
+                    call.respond(HttpStatusCode.InternalServerError, "Couldn't create event")
+                }
+            } catch (e: Exception) {
+                call.respond(HttpStatusCode.BadRequest, "Invalid request body: ${e.message}")
             }
-        } catch (e: Exception) {
-            call.respond(HttpStatusCode.BadRequest, "Invalid request body: ${e.message}")
         }
     }
 }

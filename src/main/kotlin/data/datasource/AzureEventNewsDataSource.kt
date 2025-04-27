@@ -2,6 +2,7 @@ package com.example.data.datasource
 
 import FCMService
 import com.example.data.database.EventNews
+import com.example.data.database.Events
 import com.example.data.model.Requests.EventNewsRequest
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.insert
@@ -12,6 +13,7 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.javatime.CurrentDateTime
 import java.util.UUID
+import kotlin.text.get
 
 class AzureEventNewsDataSource(
     private val database: Database, private val fcmService: FCMService
@@ -24,8 +26,13 @@ class AzureEventNewsDataSource(
             it[id] = UUID.randomUUID()
         }
         if (result.insertedCount > 0) {
-            // Extract the first sentence or up to 50 chars for the notification title
-            val newsTitle = "New Event Update"
+            val eventName = Events
+                .selectAll()
+                .where { Events.id eq UUID.fromString(eventNews.eventId) }
+                .map { it[Events.name] }
+                .singleOrNull() ?: "Event"
+
+            val newsTitle = "$eventName"
             sendEventNewsNotification(eventNews.eventId, newsTitle, eventNews.news)
             true
         } else {

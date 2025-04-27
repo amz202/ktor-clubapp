@@ -1,43 +1,17 @@
-
-import com.google.auth.oauth2.GoogleCredentials
 import com.google.firebase.FirebaseApp
-import com.google.firebase.FirebaseOptions
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.Message
 import com.google.firebase.messaging.Notification
 import io.ktor.server.application.*
-import java.io.FileInputStream
-import java.nio.file.Paths
 import java.util.*
 
 class FCMService(private val application: Application) {
-    private var initialized = false
+    // Remove the initialized flag, we'll check each time
 
     init {
-        try {
-            // Check if Firebase is already initialized
-            if (FirebaseApp.getApps().isEmpty()) {
-                // Firebase is not initialized yet, initialize it
-                val serviceAccountPath = application.environment.config.propertyOrNull("firebase.credentials")?.getString()
-                    ?: throw IllegalStateException("Firebase credentials path not configured")
-
-                val options = FirebaseOptions.builder()
-                    .setCredentials(GoogleCredentials.fromStream(FileInputStream(serviceAccountPath)))
-                    .build()
-
-                FirebaseApp.initializeApp(options)
-                application.log.info("Firebase initialized successfully for FCM")
-                initialized = true
-            } else {
-                // Firebase is already initialized, use existing instance
-                initialized = true
-                application.log.info("Using existing Firebase instance for FCM")
-            }
-        } catch (e: Exception) {
-            application.log.error("Failed to use Firebase: ${e.localizedMessage}")
-        }
+        // Just log that the service is created
+        application.log.info("FCM Service created, will use Firebase when available")
     }
-
 
     /**
      * Send a notification to a specific topic (e.g., event_123)
@@ -48,7 +22,8 @@ class FCMService(private val application: Application) {
         body: String,
         data: Map<String, String> = emptyMap()
     ): Boolean {
-        if (!initialized) {
+        // Check if Firebase is initialized right now, not relying on an instance variable
+        if (FirebaseApp.getApps().isEmpty()) {
             application.log.error("Cannot send notification: Firebase not initialized")
             return false
         }

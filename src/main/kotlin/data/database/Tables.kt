@@ -76,7 +76,7 @@ object EventNews : Table() {
     val createdOn = datetime("createdOn")
     val id = uuid("id").autoGenerate()
 
-    override val primaryKey = PrimaryKey(eventId, news)
+    override val primaryKey = PrimaryKey(eventId)
 }
 
 fun createClubsTable() {

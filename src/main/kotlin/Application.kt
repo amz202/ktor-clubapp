@@ -7,30 +7,35 @@ import com.example.data.datasource.*
 import com.example.plugins.configureMonitoring
 import com.example.plugins.configureRouting
 import com.example.plugins.configureSecurity
-//import com.example.plugins.configureSecurity
 import com.example.plugins.configureSerialization
-import com.example.service.FirebaseInitializer
+// import com.example.service.FirebaseInitializer - We won't use this anymore
 import io.ktor.server.application.*
 import org.jetbrains.exposed.sql.Database
+import com.google.firebase.FirebaseApp
 
 fun main(args: Array<String>) {
     io.ktor.server.netty.EngineMain.main(args)
 }
 
 fun Application.module() {
-    // Initialize Firebase first thing
     val serviceAccountPath = "C:\\Users\\amz20\\firebase_key\\club\\clubapp-f255a-firebase-adminsdk-fbsvc-fc41eebff2.json"
-    FirebaseInitializer.initialize(this, serviceAccountPath)
+
+    // Don't initialize Firebase here anymore - let the auth provider do it first
+    // We'll configure security first, which will allow the auth provider to initialize Firebase
 
     val dataSource = DatabaseFactory.init()
     val database = Database.connect(dataSource)
 
-    // FCMService will now use the existing Firebase instance
+    val userDataSource = AzureUserDataSource(database)
+
+    // First set up security which will initialize Firebase through the auth provider
+    configureSecurity(userDataSource, serviceAccountPath)
+
+    // Then create FCMService which will use the existing instance
     val fcmService = FCMService(this)
 
     val clubDataSource = AzureDataSource(database)
     val eventsDataSource = AzureEventDataSource(database)
-    val userDataSource = AzureUserDataSource(database)
     val clubMemberDataSource = AzureClubMemberDataSource(database)
     val eventParticipantDataSource = AzureEventParticipantDataSource(database)
     val eventNewsDataSource = AzureEventNewsDataSource(database, fcmService)
@@ -38,13 +43,13 @@ fun Application.module() {
     configureMonitoring()
     configureSerialization()
     createClubsTable()
-    configureSecurity(userDataSource, serviceAccountPath)
     configureRouting(
         clubDataSource = clubDataSource,
         eventsDataSource = eventsDataSource,
         userDataSource = userDataSource,
         clubMemberDataSource = clubMemberDataSource,
         eventParticipantDataSource = eventParticipantDataSource,
+        eventNewsDataSource = eventNewsDataSource
     )
 }
 
