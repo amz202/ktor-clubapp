@@ -10,6 +10,7 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import org.apache.http.client.methods.RequestBuilder.post
 import java.time.LocalDateTime
 import java.util.*
 
@@ -34,6 +35,12 @@ fun Route.joinEvent(eventParticipantDataSource: EventParticipantDataSource, even
             if (eventDateTime.isBefore(LocalDateTime.now())) {
                 call.respond(HttpStatusCode.BadRequest, "Cannot join past events")
                 return@post
+            }
+            event.capacity?.toInt()?.let {
+                if (event.attendeeCount >= it) {
+                    call.respond(HttpStatusCode.BadRequest, "Event has reached capacity")
+                    return@post
+                }
             }
             val userId = call.principal<MyAuthenticatedUser>()?.id
             if (userId == null) {

@@ -10,6 +10,7 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import java.time.LocalDateTime
 import java.util.*
 
 fun Route.getEvents(eventsDataSource: EventsDataSource) {
@@ -72,6 +73,11 @@ fun Route.createEvent(eventsDataSource: EventsDataSource, eventParticipantDataSo
                 val principal = call.principal<MyAuthenticatedUser>()
                 if (principal == null) {
                     call.respond(HttpStatusCode.Unauthorized, "User not authenticated")
+                    return@post
+                }
+                val eventDateTime = event.dateTime.let { LocalDateTime.parse(it) }
+                if (eventDateTime.isBefore(LocalDateTime.now())) {
+                    call.respond(HttpStatusCode.BadRequest, "Cannot create past events")
                     return@post
                 }
                 val result = eventsDataSource.createEvent(event) //this means that we call this function right away and store its value in variable

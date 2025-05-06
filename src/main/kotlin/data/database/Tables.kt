@@ -28,33 +28,32 @@ object Users : Table(){
     override val primaryKey = PrimaryKey(id)
 }
 
-object Events:Table(){
-    val id = uuid("id").autoGenerate()
+object Events : Table() {
+    val id = uuid("id")
     val name = varchar("name", 50)
     val description = text("description")
-    val clubId = uuid("clubId").references(Clubs.id).nullable()
+    val clubId = uuid("clubId").references(Clubs.id, onDelete = ReferenceOption.SET_NULL).nullable()
     val dateTime = varchar("dateTime", 50)
     val location = varchar("location", 100)
     val capacity = integer("capacity").nullable()
-    val organizedBy = varchar("organizedBy",50)
+    val organizedBy = varchar("organizedBy", 50)
     val tags = varchar("tags", 100)
-
 
     override val primaryKey = PrimaryKey(id)
 }
 
 object ClubMembers : Table() {
     val userId = varchar("userId", 50).references(Users.id)
-    val clubId = uuid("clubId").references(Clubs.id)
+    val clubId = uuid("clubId").references(Clubs.id, onDelete = ReferenceOption.CASCADE)
     val clubRole = varchar("clubRole", 50).default("member")
     val joinedOn = datetime("joinedOn")
 
     override val primaryKey = PrimaryKey(userId, clubId)
 }
 
-object EventParticipants  : Table() {
+object EventParticipants : Table() {
     val userId = varchar("userId", 50).references(Users.id)
-    val eventId = uuid("eventId").references(Events.id)
+    val eventId = uuid("eventId").references(Events.id, onDelete = ReferenceOption.CASCADE)
     val eventRole = varchar("eventRole", 30)
     val joinedOn = datetime("joinedOn")
 
@@ -62,7 +61,7 @@ object EventParticipants  : Table() {
 }
 
 object EventDetails : Table() {
-    val eventId = uuid("eventId").references(Events.id).uniqueIndex()
+    val eventId = uuid("eventId").references(Events.id, onDelete = ReferenceOption.CASCADE).uniqueIndex()
     val reviewSummary = varchar("reviewSummary", 150).nullable()
     val mediaUrls = varchar("mediaUrls", 150).nullable()
     val sponsors = varchar("sponsors", 50).nullable()
@@ -71,7 +70,7 @@ object EventDetails : Table() {
 }
 
 object EventNews : Table() {
-    val eventId = uuid("eventId").references(Events.id)
+    val eventId = uuid("eventId").references(Events.id, onDelete = ReferenceOption.CASCADE)
     val news = varchar("news", 255)
     val createdOn = datetime("createdOn")
     val id = uuid("id").autoGenerate()
