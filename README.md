@@ -1,7 +1,5 @@
 # ktor-clubapp
 
-This project was created using the [Ktor Project Generator](https://start.ktor.io).
-
 Here are some useful links to get you started:
 
 - [Ktor Documentation](https://ktor.io/docs/home.html)
@@ -9,9 +7,39 @@ Here are some useful links to get you started:
 - The [Ktor Slack chat](https://app.slack.com/client/T09229ZC6/C0A974TJ9). You'll need
   to [request an invite](https://surveys.jetbrains.com/s3/kotlin-slack-sign-up) to join.
 
-## Features
+# ClubApp Backend
 
-Here's a list of features included in this project:
+A modern backend server built with Ktor to power the ClubApp mobile application. This service provides a robust and scalable API for managing clubs, events, user sessions, and memberships.
+
+---
+
+## Overview
+
+The ClubApp Backend serves as the core API layer of the ClubApp ecosystem, handling:
+
+- Club creation, discovery, and membership management  
+- Event coordination and participation tracking  
+- Firebase Authentication token verification  
+- Push notifications via Firebase Cloud Messaging  
+- Role-based access control and permission enforcement  
+
+Designed with clean architecture principles, the backend ensures clear separation of concerns, scalability, and ease of maintenance. It connects to a PostgreSQL database and uses Exposed for type-safe database access.
+
+---
+
+## Technology Stack
+
+- Kotlin with Ktor  
+- PostgreSQL using Exposed ORM  
+- Firebase Authentication for session validation  
+- Firebase Cloud Messaging for notifications  
+- HikariCP for connection pooling  
+- kotlinx.serialization for JSON parsing  
+
+---
+
+Let me know if you’d like to add usage instructions, API route documentation, or a database schema overview.
+
 
 | Name                                                                      | Description                                                                        |
 |---------------------------------------------------------------------------|------------------------------------------------------------------------------------|
