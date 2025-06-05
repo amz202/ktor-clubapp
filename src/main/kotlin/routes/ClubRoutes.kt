@@ -2,7 +2,9 @@ package com.example.routes
 
 import com.example.data.datasource.ClubDataSource
 import com.example.data.datasource.ClubMemberDataSource
+import com.example.data.datasource.GroupDataSource
 import com.example.data.model.Club
+import com.example.data.model.ClubGroup
 import com.example.data.model.MyAuthenticatedUser
 import com.example.data.model.Requests.ClubRequest
 import io.ktor.http.*
@@ -10,6 +12,7 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import org.bson.types.ObjectId
 import org.jetbrains.exposed.sql.javatime.CurrentDateTime
 import java.time.LocalDateTime
 import java.util.*
@@ -37,7 +40,7 @@ fun Route.getClubs(clubDataSource: ClubDataSource) {
     }
 }
 
-fun Route.createClub(clubDataSource: ClubDataSource, clubMemberDataSource: ClubMemberDataSource) {
+fun Route.createClub(clubDataSource: ClubDataSource, clubMemberDataSource: ClubMemberDataSource, groupDataSource: GroupDataSource) {
     authenticate {
         post("/clubs") {
             val principal = call.principal<MyAuthenticatedUser>()
@@ -71,6 +74,12 @@ fun Route.createClub(clubDataSource: ClubDataSource, clubMemberDataSource: ClubM
             if (result == true) {
                 call.respond(HttpStatusCode.Created, club)
                 clubMemberDataSource.joinClub(club.id, principal.id, "creator")
+                groupDataSource.createGroup(
+                    ClubGroup(
+                        name = club.name,
+                        clubId = club.id.toString()
+                    )
+                )
             } else {
                 call.respond(HttpStatusCode.InternalServerError, "Couldn't create club")
             }
@@ -79,7 +88,7 @@ fun Route.createClub(clubDataSource: ClubDataSource, clubMemberDataSource: ClubM
     }
 }
 
-fun Route.deleteClub(clubDataSource: ClubDataSource) {
+fun Route.deleteClub(clubDataSource: ClubDataSource, groupDataSource: GroupDataSource) {
     delete("/clubs/{id}") {
         val clubId = call.parameters["id"]?.let { UUID.fromString(it) }
         if (clubId == null) {
@@ -89,6 +98,7 @@ fun Route.deleteClub(clubDataSource: ClubDataSource) {
         val result = clubDataSource.deleteClub(clubId)
         if (result) {
             call.respond(HttpStatusCode.OK, "Club deleted")
+            groupDataSource.deleteGroup(clubId = clubId.toString())
         } else {
             call.respond(HttpStatusCode.NotFound, "Club not found")
         }

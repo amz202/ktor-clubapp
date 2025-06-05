@@ -60,4 +60,8 @@ dependencies {
     implementation("com.google.firebase:firebase-admin:9.2.0")
     implementation("com.google.auth:google-auth-library-oauth2-http:1.23.0")
 
+    //websocket
+    implementation("io.ktor:ktor-server-websockets")
+    implementation("org.mongodb:mongodb-driver-kotlin-coroutine:5.1.1")
+    implementation("org.mongodb:bson-kotlinx:5.5.0")
 }
