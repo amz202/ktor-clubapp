@@ -3,7 +3,12 @@ package com.example
 import FCMService
 import com.example.data.database.DatabaseFactory
 import com.example.data.database.createClubsTable
-import com.example.data.datasource.*
+import com.example.data.datasource.azure.AzureClubMemberDataSource
+import com.example.data.datasource.azure.AzureClubDataSource
+import com.example.data.datasource.azure.AzureEventDataSource
+import com.example.data.datasource.azure.AzureEventNewsDataSource
+import com.example.data.datasource.azure.AzureEventParticipantDataSource
+import com.example.data.datasource.azure.AzureUserDataSource
 import com.example.plugins.configureMonitoring
 import com.example.plugins.configureRouting
 import com.example.plugins.configureSecurity
@@ -11,7 +16,6 @@ import com.example.plugins.configureSerialization
 // import com.example.service.FirebaseInitializer - We won't use this anymore
 import io.ktor.server.application.*
 import org.jetbrains.exposed.sql.Database
-import com.google.firebase.FirebaseApp
 
 fun main(args: Array<String>) {
     io.ktor.server.netty.EngineMain.main(args)
@@ -34,7 +38,7 @@ fun Application.module() {
     // Then create FCMService which will use the existing instance
     val fcmService = FCMService(this)
 
-    val clubDataSource = AzureDataSource(database)
+    val clubDataSource = AzureClubDataSource(database)
     val eventsDataSource = AzureEventDataSource(database)
     val clubMemberDataSource = AzureClubMemberDataSource(database)
     val eventParticipantDataSource = AzureEventParticipantDataSource(database)

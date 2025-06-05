@@ -1,6 +1,5 @@
 package com.example.routes
 
-import com.example.data.datasource.AzureEventDataSource
 import com.example.data.datasource.EventParticipantDataSource
 import com.example.data.datasource.EventsDataSource
 import com.example.data.model.MyAuthenticatedUser
@@ -10,7 +9,6 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import org.apache.http.client.methods.RequestBuilder.post
 import java.time.LocalDateTime
 import java.util.*
 

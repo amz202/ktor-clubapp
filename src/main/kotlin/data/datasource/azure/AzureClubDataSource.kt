@@ -1,22 +1,21 @@
-package com.example.data.datasource
+package com.example.data.datasource.azure
 
 import com.example.data.database.ClubMembers
 import com.example.data.database.Clubs
 import com.example.data.database.EventParticipants
 import com.example.data.database.Events
+import com.example.data.datasource.ClubDataSource
 import com.example.data.model.Club
-import com.example.data.model.Event
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import java.util.UUID
-import com.example.data.datasource.helpers.rowToEvent
 import com.example.data.datasource.helpers.rowToClub
 import com.example.data.model.Response.ClubResponse
 import com.example.data.model.Response.EventResponse
 import org.jetbrains.exposed.sql.javatime.CurrentDateTime
 
-class AzureDataSource(private val database: Database) : ClubDataSource {
+class AzureClubDataSource(private val database: Database) : ClubDataSource {
 
     override suspend fun getClub(id: UUID): ClubResponse? = newSuspendedTransaction(db = database) {
         val club = Clubs.selectAll().where { Clubs.id eq id }

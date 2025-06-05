@@ -1,12 +1,14 @@
-package com.example.data.datasource
+package com.example.data.datasource.azure
 
 import com.example.data.database.EventParticipants
 import com.example.data.database.Users
+import com.example.data.datasource.EventParticipantDataSource
 import com.example.data.model.EventParticipant
 import com.example.data.model.Response.EventParticipantsResponse
 import com.example.data.model.Response.RoleResponse
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.javatime.CurrentDateTime
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import java.util.*
 
@@ -33,7 +35,7 @@ class AzureEventParticipantDataSource(private val database: Database) : EventPar
             it[EventParticipants.eventId] = eventId
             it[EventParticipants.userId] = userId
             it[eventRole] = role
-            it[joinedOn] = org.jetbrains.exposed.sql.javatime.CurrentDateTime
+            it[joinedOn] = CurrentDateTime
         }
         result.insertedCount > 0
     }

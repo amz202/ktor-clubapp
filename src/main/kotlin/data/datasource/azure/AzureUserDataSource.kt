@@ -1,9 +1,9 @@
-package com.example.data.datasource
+package com.example.data.datasource.azure
 
 import com.example.data.database.Users
+import com.example.data.datasource.UserDataSource
 import com.example.data.model.User
 import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 
 class AzureUserDataSource(private val database: Database) : UserDataSource {

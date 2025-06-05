@@ -1,7 +1,8 @@
-package com.example.data.datasource
+package com.example.data.datasource.azure
 
 import com.example.data.database.EventParticipants
 import com.example.data.database.Events
+import com.example.data.datasource.EventsDataSource
 import com.example.data.model.Event
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.*

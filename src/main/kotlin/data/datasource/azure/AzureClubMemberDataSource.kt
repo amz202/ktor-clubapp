@@ -1,7 +1,8 @@
-package com.example.data.datasource
+package com.example.data.datasource.azure
 
 import com.example.data.database.ClubMembers
 import com.example.data.database.Users
+import com.example.data.datasource.ClubMemberDataSource
 import com.example.data.model.ClubMember
 import com.example.data.model.Response.ClubMembersResponse
 import com.example.data.model.Response.RoleResponse
@@ -10,6 +11,7 @@ import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.javatime.CurrentDateTime
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import java.util.*
 
@@ -36,7 +38,7 @@ class AzureClubMemberDataSource(private val database: Database) : ClubMemberData
             it[ClubMembers.clubId] = clubId
             it[ClubMembers.userId] = userId
             it[clubRole] = role
-            it[joinedOn] = org.jetbrains.exposed.sql.javatime.CurrentDateTime
+            it[joinedOn] = CurrentDateTime
         }
         result.insertedCount > 0
     }

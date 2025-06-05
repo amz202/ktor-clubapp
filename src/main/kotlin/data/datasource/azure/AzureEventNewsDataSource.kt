@@ -1,8 +1,9 @@
-package com.example.data.datasource
+package com.example.data.datasource.azure
 
 import FCMService
 import com.example.data.database.EventNews
 import com.example.data.database.Events
+import com.example.data.datasource.EventNewsDataSource
 import com.example.data.model.Requests.EventNewsRequest
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.insert
@@ -13,7 +14,6 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.javatime.CurrentDateTime
 import java.util.UUID
-import kotlin.text.get
 
 class AzureEventNewsDataSource(
     private val database: Database, private val fcmService: FCMService
