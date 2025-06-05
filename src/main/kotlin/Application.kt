@@ -9,11 +9,14 @@ import com.example.data.datasource.azure.AzureEventDataSource
 import com.example.data.datasource.azure.AzureEventNewsDataSource
 import com.example.data.datasource.azure.AzureEventParticipantDataSource
 import com.example.data.datasource.azure.AzureUserDataSource
+import com.example.data.datasource.mongo.MongoChatDataSource
+import com.example.data.datasource.mongo.MongoGroupDataSource
 import com.example.plugins.configureMonitoring
 import com.example.plugins.configureRouting
 import com.example.plugins.configureSecurity
 import com.example.plugins.configureSerialization
-// import com.example.service.FirebaseInitializer - We won't use this anymore
+import com.example.plugins.configureSockets
+import com.mongodb.kotlin.client.coroutine.MongoClient
 import io.ktor.server.application.*
 import org.jetbrains.exposed.sql.Database
 
@@ -22,15 +25,18 @@ fun main(args: Array<String>) {
 }
 
 fun Application.module() {
+    //Azure
     val serviceAccountPath = "C:\\Users\\amz20\\firebase_key\\club\\clubapp-f255a-firebase-adminsdk-fbsvc-fc41eebff2.json"
-
-    // Don't initialize Firebase here anymore - let the auth provider do it first
-    // We'll configure security first, which will allow the auth provider to initialize Firebase
-
     val dataSource = DatabaseFactory.init()
     val database = Database.connect(dataSource)
-
     val userDataSource = AzureUserDataSource(database)
+
+    //Mongo
+    val mongoPw = System.getenv("MONGO_PW")
+    val dbName = "ChatDatabase"
+    val db = MongoClient.create(
+        connectionString = "mongodb+srv://abdulmajidzeeshan4:${mongoPw}@cluster0.blwr6uy.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+    ).getDatabase(dbName)
 
     // First set up security which will initialize Firebase through the auth provider
     configureSecurity(userDataSource, serviceAccountPath)
@@ -43,6 +49,8 @@ fun Application.module() {
     val clubMemberDataSource = AzureClubMemberDataSource(database)
     val eventParticipantDataSource = AzureEventParticipantDataSource(database)
     val eventNewsDataSource = AzureEventNewsDataSource(database, fcmService)
+    val chatDataSource = MongoChatDataSource(db)
+    val groupDataSource = MongoGroupDataSource(db)
 
     configureMonitoring()
     configureSerialization()
@@ -53,8 +61,11 @@ fun Application.module() {
         userDataSource = userDataSource,
         clubMemberDataSource = clubMemberDataSource,
         eventParticipantDataSource = eventParticipantDataSource,
-        eventNewsDataSource = eventNewsDataSource
+        eventNewsDataSource = eventNewsDataSource,
+        chatDataSource = chatDataSource,
+        groupDataSource = groupDataSource
     )
+    configureSockets(chatDataSource, clubMemberDataSource)
 }
 
 // Exposed is a library that helps interact with databases in a simpler way using Kotlin code instead of writing raw SQL.
