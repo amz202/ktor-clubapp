@@ -24,6 +24,7 @@ fun Application.configureRouting(
         deleteClub(clubDataSource, groupDataSource)
         getClubEvents(clubDataSource)
         getMyClubs(clubDataSource)
+        getClubGroup(groupDataSource)
 
         // Club member routes
         getClubsMembers(clubMemberDataSource)

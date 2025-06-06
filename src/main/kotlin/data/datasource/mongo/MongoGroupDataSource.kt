@@ -2,6 +2,7 @@ package com.example.data.datasource.mongo
 
 import com.example.data.datasource.GroupDataSource
 import com.example.data.model.ClubGroup
+import com.example.data.model.Response.ClubGroupResponse
 import com.mongodb.client.model.Filters.eq
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
 import kotlinx.coroutines.flow.firstOrNull
@@ -18,8 +19,15 @@ class MongoGroupDataSource(db: MongoDatabase) : GroupDataSource {
         return groups.find().toList()
     }
 
-    override suspend fun getGroupById(id: String): ClubGroup? {
-        return groups.find(eq("id", id)).firstOrNull()
+    override suspend fun getGroupById(id: String): ClubGroupResponse? {
+        val group = groups.find(eq("id", id)).firstOrNull()
+        return group?.let {
+            ClubGroupResponse(
+                id = it.id.toString(),
+                name = it.name,
+                clubId = it.clubId
+            )
+        }
     }
 
     override suspend fun deleteGroup(id: String): Boolean {
