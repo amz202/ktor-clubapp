@@ -35,7 +35,7 @@ fun Application.module() {
     val mongoPw = System.getenv("MONGO_PW")
     val dbName = "ChatDatabase"
     val db = MongoClient.create(
-        connectionString = "mongodb+srv://abdulmajidzeeshan4:${mongoPw}@cluster0.blwr6uy.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+        connectionString = "mongodb+srv://abdulmajidzeeshan4:${mongoPw}@cluster0.dgrppcp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
     ).getDatabase(dbName)
 
     // First set up security which will initialize Firebase through the auth provider

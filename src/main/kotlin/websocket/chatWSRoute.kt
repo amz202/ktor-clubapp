@@ -26,7 +26,7 @@ fun Route.chatWSRoute(chatDataSource: ChatDataSource, clubMemberDataSource: Club
                 close(CloseReason(CloseReason.Codes.VIOLATED_POLICY, "Unauthorized"))
                 return@webSocket
             }
-            val groupId = call.parameters["groupId"]?.let { UUID.fromString(it) }
+            val groupId = call.parameters["groupId"]
             if (groupId == null) {
                 close(CloseReason(CloseReason.Codes.VIOLATED_POLICY, "Invalid group ID"))
                 return@webSocket
@@ -42,7 +42,7 @@ fun Route.chatWSRoute(chatDataSource: ChatDataSource, clubMemberDataSource: Club
                 close(CloseReason(CloseReason.Codes.VIOLATED_POLICY, "Access denied"))
                 return@webSocket
             }
-            ChatSessionManager.register(groupId = groupId.toString(), this)
+            ChatSessionManager.register(groupId = groupId, this)
             try {
                 for (frame in incoming){
                     if(frame is Frame.Text){

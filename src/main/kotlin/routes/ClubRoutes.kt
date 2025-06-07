@@ -147,3 +147,21 @@ fun Route.getClubEvents(clubDataSource: ClubDataSource) {
         }
     }
 }
+
+fun Route.getClubGroup(groupDataSource: GroupDataSource){
+    authenticate {
+        get("/{clubId}/group") {
+            val clubId = call.parameters["clubId"]
+            if (clubId == null) {
+                call.respond(HttpStatusCode.BadRequest, "Invalid club ID")
+                return@get
+            }
+            val group = groupDataSource.getGroupById(clubId)
+            if (group == null) {
+                call.respond(HttpStatusCode.NotFound, "No groups found for this club")
+            } else {
+                call.respond(HttpStatusCode.OK, group)
+            }
+        }
+    }
+}
