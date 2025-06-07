@@ -16,7 +16,7 @@ fun Route.recentChat(chatDataSource: ChatDataSource){
             val groupId = call.parameters["groupId"]
             if (groupId != null) {
                 val messages = chatDataSource.getRecentMessages(groupId)
-                if (messages.isNotEmpty()) {
+                if (messages != null && messages.isNotEmpty()) {
                     call.respond(HttpStatusCode.OK, messages)
                 } else {
                     call.respond(HttpStatusCode.NoContent, "No recent messages found for this group.")

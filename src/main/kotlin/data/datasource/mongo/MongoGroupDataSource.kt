@@ -20,7 +20,7 @@ class MongoGroupDataSource(db: MongoDatabase) : GroupDataSource {
     }
 
     override suspend fun getGroupById(id: String): ClubGroupResponse? {
-        val group = groups.find(eq("id", id)).firstOrNull()
+        val group = groups.find(eq("clubId", id)).firstOrNull()
         return group?.let {
             ClubGroupResponse(
                 id = it.id.toString(),
