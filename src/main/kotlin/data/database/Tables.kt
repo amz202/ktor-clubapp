@@ -24,6 +24,7 @@ object Users : Table(){
     val name = varchar("name", 50)
     val role = varchar("role",10).default("student")
     val schoolName = varchar("schoolName", 255).nullable()
+    val photoUrl = varchar("photoUrl", 255).nullable()
 
     override val primaryKey = PrimaryKey(id)
 }

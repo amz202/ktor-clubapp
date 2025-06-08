@@ -7,4 +7,5 @@ data class MyAuthenticatedUser(
     val name: String?,
     val role:String,
     val schoolName:String? = null,
+    val photoUrl:String?
 )

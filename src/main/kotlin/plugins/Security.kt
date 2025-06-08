@@ -26,11 +26,11 @@ fun Application.configureSecurity(userDataSource: UserDataSource, serviceAccount
                 val user = userDataSource.getUser(token.uid)
                 if (user != null) {
                     MyAuthenticatedUser(
-                        id = token.uid, email = token.email ?: "", name = token.name, role = user.role
+                        id = token.uid, email = token.email ?: "", name = token.name, role = user.role, photoUrl = user.photoUrl
                     )
                 }else{
                     MyAuthenticatedUser(
-                        id = token.uid, email = token.email ?: "", name = token.name, role = "Student"
+                        id = token.uid, email = token.email ?: "", name = token.name, role = "Student", photoUrl = token.picture
                     )
                 }
             }

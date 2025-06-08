@@ -56,8 +56,8 @@ fun Route.chatWSRoute(chatDataSource: ChatDataSource, clubMemberDataSource: Club
                             sender = userId,
                             message = sentMessage.message,
                             timeStamp = LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME),
-                            groupId = sentMessage.groupId
-                        )
+                            groupId = sentMessage.groupId,
+                            senderName = sentMessage.senderName                       )
                         chatDataSource.saveMessage(chatMessage)
                         ChatSessionManager.broadcast(groupId.toString(), chatMessage)
                     }
