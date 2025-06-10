@@ -76,6 +76,11 @@ Designed with clean architecture principles, the backend ensures clear separatio
 
 ---
 
+## License
+
+This project is licensed under the [Apache License 2.0](./LICENSE).
+
+---
 
 
 
