@@ -64,4 +64,8 @@ dependencies {
     implementation("io.ktor:ktor-server-websockets")
     implementation("org.mongodb:mongodb-driver-kotlin-coroutine:5.1.1")
     implementation("org.mongodb:bson-kotlinx:5.5.0")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.7.3")
+    implementation("com.google.guava:guava:33.2.0-jre")
+    implementation("org.fusesource.jansi:jansi:2.4.0")
 }
