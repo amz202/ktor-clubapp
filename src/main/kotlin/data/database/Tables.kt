@@ -110,6 +110,7 @@ object ClubJoinRequest: Table() {
 
 fun createClubsTable() {
     transaction {
-        SchemaUtils.create(Clubs, Events, Users, ClubMembers, EventDetails, EventParticipants, EventNews)
+        SchemaUtils.create(Clubs, Events, Users, ClubMembers, EventDetails, EventParticipants, EventNews,
+            ClubJoinRequest)
     }
 }

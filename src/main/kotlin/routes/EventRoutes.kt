@@ -5,6 +5,8 @@ import com.example.data.datasource.EventsDataSource
 import com.example.data.model.Event
 import com.example.data.model.MyAuthenticatedUser
 import com.example.data.model.Requests.EventRequest
+import com.example.utils.getAuthenticatedUser
+import com.example.utils.requireRole
 import io.ktor.http.*
 import io.ktor.server.auth.*
 import io.ktor.server.request.*
@@ -42,7 +44,7 @@ fun Route.getEvents(eventsDataSource: EventsDataSource) {
 fun Route.getMyEvents(eventsDataSource: EventsDataSource){
     authenticate {
         get("/user/events"){
-            val principal = call.principal<MyAuthenticatedUser>()
+            val principal = call.getAuthenticatedUser()
             if (principal == null) {
                 call.respond(HttpStatusCode.Unauthorized, "Unauthorized")
                 return@get
@@ -78,6 +80,11 @@ fun Route.createEvent(eventsDataSource: EventsDataSource, eventParticipantDataSo
     authenticate {
         post("/events") {
             try {
+                val principal = call.getAuthenticatedUser()
+                if (principal == null) {
+                    call.respond(HttpStatusCode.Unauthorized, "User not authenticated")
+                    return@post
+                }
                 val eventRequest = call.receive<EventRequest>()
                 val event = Event(
                     name = eventRequest.name,
@@ -89,11 +96,6 @@ fun Route.createEvent(eventsDataSource: EventsDataSource, eventParticipantDataSo
                     organizedBy = eventRequest.organizedBy,
                     tags = eventRequest.tags
                 )
-                val principal = call.principal<MyAuthenticatedUser>()
-                if (principal == null) {
-                    call.respond(HttpStatusCode.Unauthorized, "User not authenticated")
-                    return@post
-                }
                 val eventDateTime = event.dateTime.let { LocalDateTime.parse(it) }
                 if (eventDateTime.isBefore(LocalDateTime.now())) {
                     call.respond(HttpStatusCode.BadRequest, "Cannot create past events")
@@ -115,6 +117,10 @@ fun Route.createEvent(eventsDataSource: EventsDataSource, eventParticipantDataSo
 
 fun Route.deleteEvent(eventsDataSource: EventsDataSource) {
     delete("/events/{id}") {
+        if(!call.requireRole("admin")){
+            call.respond(HttpStatusCode.Forbidden, "You do not have permission to delete events")
+            return@delete
+        }
         val eventId = call.parameters["id"]?.let { UUID.fromString(it) }
         if (eventId == null) {
             call.respond(HttpStatusCode.BadRequest, "Invalid event ID")

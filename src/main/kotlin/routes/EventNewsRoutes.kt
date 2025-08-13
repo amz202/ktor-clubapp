@@ -6,6 +6,7 @@ import com.example.data.model.Event
 import com.example.data.model.MyAuthenticatedUser
 import com.example.data.model.Requests.EventNewsRequest
 import com.example.data.model.Requests.EventRequest
+import com.example.utils.getAuthenticatedUser
 import io.ktor.http.*
 import io.ktor.server.auth.*
 import io.ktor.server.request.*
@@ -60,6 +61,11 @@ fun Route.createEventNews(
 ){
     authenticate {
         post("/events/{eventId}/news"){
+            val userId = call.getAuthenticatedUser()?.id
+            if (userId == null) {
+                call.respond(HttpStatusCode.Unauthorized, "User not authenticated")
+                return@post
+            }
             val eventId = call.parameters["eventId"]?.let { UUID.fromString(it) }
             if (eventId == null) {
                 call.respond(HttpStatusCode.BadRequest, "Invalid event ID")
@@ -74,11 +80,6 @@ fun Route.createEventNews(
                 call.receive<EventNewsRequest>()
             } catch (e: Exception) {
                 call.respond(HttpStatusCode.BadRequest, "Invalid request body")
-                return@post
-            }
-            val userId = call.principal<MyAuthenticatedUser>()?.id
-            if (userId == null) {
-                call.respond(HttpStatusCode.Unauthorized, "User not authenticated")
                 return@post
             }
             val result = eventNewsDataSource.createNews(eventNewsRequest)

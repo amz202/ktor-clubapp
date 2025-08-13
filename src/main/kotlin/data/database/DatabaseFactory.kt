@@ -26,10 +26,10 @@ import org.jetbrains.exposed.sql.Database
 object DatabaseFactory {
     fun init(): HikariDataSource {
         val config = HikariConfig().apply {
-            jdbcUrl = System.getenv("JDBC_DATABASE_URL") ?: "jdbc:postgresql://amz-1.postgres.database.azure.com:5432/clubs_db?sslmode=require"
+            jdbcUrl = "jdbc:postgresql://aws-1-ap-southeast-1.pooler.supabase.com:6543/postgres?sslmode=require"
             driverClassName = "org.postgresql.Driver"
-            username = System.getenv("DB_USER")
-            password = System.getenv("DB_PASSWORD")
+            username = "postgres.ulrxrdveslukpfvouxfo"
+            password = System.getenv("SUPABASE_DB_PW")
             maximumPoolSize = 10
             isAutoCommit = false
             transactionIsolation = "TRANSACTION_REPEATABLE_READ"

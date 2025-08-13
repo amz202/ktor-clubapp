@@ -43,6 +43,8 @@ fun Application.configureRouting(
         getClubEvents(clubDataSource)
         getMyClubs(clubDataSource)
         getClubGroup(groupDataSource)
+        openClub(clubDataSource)
+        closeClub(clubDataSource)
 
         // Club member routes
         getClubsMembers(clubMemberDataSource)

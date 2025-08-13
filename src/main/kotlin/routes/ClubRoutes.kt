@@ -7,6 +7,8 @@ import com.example.data.model.Club
 import com.example.data.model.ClubGroup
 import com.example.data.model.MyAuthenticatedUser
 import com.example.data.model.Requests.ClubRequest
+import com.example.utils.getAuthenticatedUser
+import com.example.utils.requireRole
 import io.ktor.http.*
 import io.ktor.server.auth.*
 import io.ktor.server.request.*
@@ -62,7 +64,7 @@ fun Route.getClubs(clubDataSource: ClubDataSource) {
 fun Route.createClub(clubDataSource: ClubDataSource, clubMemberDataSource: ClubMemberDataSource, groupDataSource: GroupDataSource) {
     authenticate {
         post("/clubs") {
-            val principal = call.principal<MyAuthenticatedUser>()
+            val principal = call.getAuthenticatedUser()
             if (principal == null) {
                 call.respond(HttpStatusCode.Unauthorized, "Unauthorized")
                 return@post
@@ -110,6 +112,10 @@ fun Route.createClub(clubDataSource: ClubDataSource, clubMemberDataSource: ClubM
 fun Route.deleteClub(clubDataSource: ClubDataSource, groupDataSource: GroupDataSource) {
     authenticate {
         delete("/clubs/{id}") {
+            if(!call.requireRole("admin")){
+                call.respond(HttpStatusCode.Forbidden, "You do not have permission to delete clubs")
+                return@delete
+            }
             val clubId = call.parameters["id"]?.let { UUID.fromString(it) }
             if (clubId == null) {
                 call.respond(HttpStatusCode.BadRequest, "Invalid club ID")
@@ -129,7 +135,7 @@ fun Route.deleteClub(clubDataSource: ClubDataSource, groupDataSource: GroupDataS
 fun Route.getMyClubs(clubDataSource: ClubDataSource) {
     authenticate {
         get("/user/clubs") {
-            val principal = call.principal<MyAuthenticatedUser>()
+            val principal = call.getAuthenticatedUser()
             if (principal == null) {
                 call.respond(HttpStatusCode.Unauthorized, "User not authenticated")
                 return@get

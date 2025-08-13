@@ -3,6 +3,8 @@ package com.example.routes
 import com.example.data.datasource.ClubMemberDataSource
 import com.example.data.model.MyAuthenticatedUser
 import com.example.data.model.Requests.RoleRequest
+import com.example.utils.getAuthenticatedUser
+import com.example.utils.requireRole
 import io.ktor.http.*
 import io.ktor.server.auth.*
 import io.ktor.server.request.*
@@ -91,7 +93,7 @@ fun Route.leaveClub(clubMemberDataSource: ClubMemberDataSource) {
                 call.respond(HttpStatusCode.BadRequest, "Invalid club ID")
                 return@post
             }
-            val userId = call.principal<MyAuthenticatedUser>()?.id
+            val userId = call.getAuthenticatedUser()?.id
             if (userId == null) {
                 call.respond(HttpStatusCode.Unauthorized, "User not authenticated")
                 return@post
@@ -126,7 +128,11 @@ fun Route.getUsersClubs(clubMemberDataSource: ClubMemberDataSource) {
 
 fun Route.changeClubMemberRole(clubMemberDataSource: ClubMemberDataSource) {
     authenticate {
-        post("/club/{clubId}/{userId}/change-role/{ownRole}") {
+        post("/club/{clubId}/{userId}/change-role") {
+            if(!call.requireRole("admin")){
+                call.respond(HttpStatusCode.Forbidden, "You do not have permission to change roles")
+                return@post
+            }
             val clubId = try {
                 call.parameters["clubId"]?.let { UUID.fromString(it) }
             } catch (e: IllegalArgumentException) {
@@ -136,11 +142,6 @@ fun Route.changeClubMemberRole(clubMemberDataSource: ClubMemberDataSource) {
 
             if (clubId == null || userId == null) {
                 call.respond(HttpStatusCode.BadRequest, "Missing or invalid clubId or userId")
-                return@post
-            }
-            val ownRole = call.parameters["ownRole"]
-            if (ownRole == null) {
-                call.respond(HttpStatusCode.BadRequest, "Client's role is required")
                 return@post
             }
             val request = try {
