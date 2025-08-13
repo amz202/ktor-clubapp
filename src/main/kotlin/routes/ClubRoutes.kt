@@ -108,18 +108,20 @@ fun Route.createClub(clubDataSource: ClubDataSource, clubMemberDataSource: ClubM
 }
 
 fun Route.deleteClub(clubDataSource: ClubDataSource, groupDataSource: GroupDataSource) {
-    delete("/clubs/{id}") {
-        val clubId = call.parameters["id"]?.let { UUID.fromString(it) }
-        if (clubId == null) {
-            call.respond(HttpStatusCode.BadRequest, "Invalid club ID")
-            return@delete
-        }
-        val result = clubDataSource.deleteClub(clubId)
-        if (result) {
-            call.respond(HttpStatusCode.OK, "Club deleted")
-            groupDataSource.deleteGroup(clubId = clubId.toString())
-        } else {
-            call.respond(HttpStatusCode.NotFound, "Club not found")
+    authenticate {
+        delete("/clubs/{id}") {
+            val clubId = call.parameters["id"]?.let { UUID.fromString(it) }
+            if (clubId == null) {
+                call.respond(HttpStatusCode.BadRequest, "Invalid club ID")
+                return@delete
+            }
+            val result = clubDataSource.deleteClub(clubId)
+            if (result) {
+                call.respond(HttpStatusCode.OK, "Club deleted")
+                groupDataSource.deleteGroup(clubId = clubId.toString())
+            } else {
+                call.respond(HttpStatusCode.NotFound, "Club not found")
+            }
         }
     }
 }
@@ -180,6 +182,42 @@ fun Route.getClubGroup(groupDataSource: GroupDataSource){
                 call.respond(HttpStatusCode.NotFound, "No groups found for this club")
             } else {
                 call.respond(HttpStatusCode.OK, group)
+            }
+        }
+    }
+}
+
+fun Route.openClub(clubDataSource: ClubDataSource) {
+    authenticate {
+        post("/clubs/{id}/open") {
+            val clubId = call.parameters["id"]?.let { UUID.fromString(it) }
+            if (clubId == null) {
+                call.respond(HttpStatusCode.BadRequest, "Invalid club ID")
+                return@post
+            }
+            val result = clubDataSource.openClub(clubId)
+            if (result) {
+                call.respond(HttpStatusCode.OK, "Club opened successfully")
+            } else {
+                call.respond(HttpStatusCode.InternalServerError, "Failed to open club")
+            }
+        }
+    }
+}
+
+fun Route.closeClub(clubDataSource: ClubDataSource) {
+    authenticate {
+        post("/clubs/{id}/close") {
+            val clubId = call.parameters["id"]?.let { UUID.fromString(it) }
+            if (clubId == null) {
+                call.respond(HttpStatusCode.BadRequest, "Invalid club ID")
+                return@post
+            }
+            val result = clubDataSource.closeClub(clubId)
+            if (result) {
+                call.respond(HttpStatusCode.OK, "Club closed successfully")
+            } else {
+                call.respond(HttpStatusCode.InternalServerError, "Failed to close club")
             }
         }
     }

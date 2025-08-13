@@ -32,6 +32,7 @@ object Clubs : Table() {
     val createdOn = datetime("createdOn")
     val createdBy = varchar("createdBy", 50)
     val tags = varchar("tags", 100)
+    val isOpen = bool("open").default(true)
 
     override val primaryKey = PrimaryKey(id)
 }
@@ -95,6 +96,16 @@ object EventNews : Table() {
     val id = uuid("id").autoGenerate()
 
     override val primaryKey = PrimaryKey(eventId)
+}
+
+object ClubJoinRequest: Table() {
+    val userId = varchar("userId", 50).references(Users.id)
+    val clubId = uuid("clubId").references(Clubs.id, onDelete = ReferenceOption.CASCADE)
+    val requestMessage = text("requestMessage")
+    val status = varchar("status", 20).default("pending")
+    val requestedOn = datetime("requestedOn")
+
+    override val primaryKey = PrimaryKey(userId, clubId)
 }
 
 fun createClubsTable() {

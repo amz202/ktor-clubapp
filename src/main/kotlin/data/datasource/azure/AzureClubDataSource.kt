@@ -14,6 +14,9 @@ import com.example.data.datasource.helpers.rowToClub
 import com.example.data.model.Response.ClubResponse
 import com.example.data.model.Response.EventResponse
 import org.jetbrains.exposed.sql.javatime.CurrentDateTime
+import org.jetbrains.exposed.sql.selectAll
+import kotlin.compareTo
+import kotlin.text.set
 
 /*
  * Copyright 2025 Abdul Majid
@@ -91,6 +94,18 @@ class AzureClubDataSource(private val database: Database) : ClubDataSource {
                     }.singleOrNull()
             }
         clubs.ifEmpty { null }
+    }
+
+    override suspend fun openClub(id: UUID): Boolean = newSuspendedTransaction(db = database) {
+        Clubs.update({ Clubs.id eq id }) {
+            it[isOpen] = true
+        } > 0
+    }
+
+    override suspend fun closeClub(id: UUID): Boolean = newSuspendedTransaction(db = database){
+        Clubs.update({ Clubs.id eq id }) {
+            it[isOpen] = false
+        } > 0
     }
 
     override suspend fun createClub(club: Club): Boolean = newSuspendedTransaction(db = database) {
