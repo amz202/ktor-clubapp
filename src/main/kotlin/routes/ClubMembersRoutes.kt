@@ -1,5 +1,6 @@
 package com.example.routes
 
+import com.example.data.datasource.ClubDataSource
 import com.example.data.datasource.ClubMemberDataSource
 import com.example.data.model.MyAuthenticatedUser
 import com.example.data.model.Requests.RoleRequest
@@ -56,6 +57,11 @@ fun Route.getClubsMembers(clubMemberDataSource: ClubMemberDataSource) {
 fun Route.joinClub(clubMemberDataSource: ClubMemberDataSource) {
     authenticate {
         post("/club/{clubId}/join") {
+            val userId = call.getAuthenticatedUser()?.id
+            if (userId == null) {
+                call.respond(HttpStatusCode.Unauthorized, "User not authenticated")
+                return@post
+            }
             val clubId = try {
                 call.parameters["clubId"]?.let { UUID.fromString(it) }
             } catch (e: IllegalArgumentException) {
@@ -65,17 +71,11 @@ fun Route.joinClub(clubMemberDataSource: ClubMemberDataSource) {
                 call.respond(HttpStatusCode.BadRequest, "Invalid club ID")
                 return@post
             }
-            val userId = call.principal<MyAuthenticatedUser>()?.id
-            if (userId == null) {
-                call.respond(HttpStatusCode.Unauthorized, "User not authenticated")
-                return@post
-            }
-            val role = if (clubMemberDataSource.getClubsMembers(clubId).isEmpty()) "admin" else "member"
-            val result = clubMemberDataSource.joinClub(clubId, userId, role)
+            val result = clubMemberDataSource.joinClub(clubId, userId)
             if (result) {
-                call.respond(HttpStatusCode.OK, "Successfully joined club")
+                call.respond(HttpStatusCode.OK, "Request Sent to join club")
             } else {
-                call.respond(HttpStatusCode.InternalServerError, "Failed to join club")
+                call.respond(HttpStatusCode.InternalServerError, "Failed to request")
             }
         }
     }
@@ -188,6 +188,28 @@ fun Route.getClubRole(clubMemberDataSource: ClubMemberDataSource){
                 call.respond(HttpStatusCode.OK, role)
             } else {
                 call.respond(HttpStatusCode.NotFound, "Role not found")
+            }
+        }
+    }
+}
+
+fun Route.getPendingMembers(clubMemberDataSource: ClubMemberDataSource){
+    authenticate {
+        get("/clubs/{id}/pending-members") {
+            if(!call.requireRole("admin")){
+                call.respond(HttpStatusCode.Forbidden, "You do not have permission to view pending members")
+                return@get
+            }
+            val clubId = call.parameters["id"]?.let { UUID.fromString(it) }
+            if (clubId == null) {
+                call.respond(HttpStatusCode.BadRequest, "Invalid club ID")
+                return@get
+            }
+            val pendingMembers = clubMemberDataSource.getPendingMembers(clubId)
+            if (pendingMembers != null) {
+                call.respond(HttpStatusCode.OK, pendingMembers)
+            } else {
+                call.respond(HttpStatusCode.NotFound, "No pending members found for this club")
             }
         }
     }

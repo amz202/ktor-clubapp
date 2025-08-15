@@ -4,6 +4,7 @@ import com.example.data.database.ClubJoinRequest
 import com.example.data.model.Club
 import com.example.data.model.Response.ClubResponse
 import com.example.data.model.Event
+import com.example.data.model.Response.ClubJoinResponse
 import com.example.data.model.Response.EventResponse
 import java.util.*
 
@@ -35,5 +36,4 @@ interface ClubDataSource {
     suspend fun getMyClubs(userId: String): List<ClubResponse>? // Renamed function
     suspend fun openClub(id: UUID): Boolean
     suspend fun closeClub(id: UUID): Boolean
-    suspend fun getPendingMembers(id: UUID): List<ClubJoinRequest>?
 }

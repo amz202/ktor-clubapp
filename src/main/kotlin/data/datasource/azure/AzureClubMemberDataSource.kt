@@ -1,9 +1,11 @@
 package com.example.data.datasource.azure
 
+import com.example.data.database.ClubJoinRequest
 import com.example.data.database.ClubMembers
 import com.example.data.database.Users
 import com.example.data.datasource.ClubMemberDataSource
 import com.example.data.model.ClubMember
+import com.example.data.model.Response.ClubJoinResponse
 import com.example.data.model.Response.ClubMembersResponse
 import com.example.data.model.Response.RoleResponse
 import org.jetbrains.exposed.sql.Database
@@ -52,12 +54,22 @@ class AzureClubMemberDataSource(private val database: Database) : ClubMemberData
             .map { rowToClubMember(it) }
     }
 
-    override suspend fun joinClub(clubId: UUID, userId: String, role: String): Boolean = newSuspendedTransaction(db = database) {
+    /*override suspend fun joinClub(clubId: UUID, userId: String, role: String): Boolean = newSuspendedTransaction(db = database) {
         val result = ClubMembers.insert {
             it[ClubMembers.clubId] = clubId
             it[ClubMembers.userId] = userId
             it[clubRole] = role
             it[joinedOn] = CurrentDateTime
+        }
+        result.insertedCount > 0
+    }*/
+
+    override suspend fun joinClub(clubId: UUID, userId: String): Boolean = newSuspendedTransaction(db = database) {
+        val result = ClubJoinRequest.insert {
+            it[ClubMembers.clubId] = clubId
+            it[ClubMembers.userId] = userId
+            it[requestedOn] = CurrentDateTime
+            it[status] = "pending"
         }
         result.insertedCount > 0
     }
@@ -79,6 +91,19 @@ class AzureClubMemberDataSource(private val database: Database) : ClubMemberData
             .map { it[ClubMembers.clubRole] }
             .singleOrNull()
         role?.let { RoleResponse(it) }
+    }
+
+    override suspend fun getPendingMembers(clubId: UUID): List<ClubJoinResponse>? = newSuspendedTransaction(db = database){
+        val pendingMembers = ClubJoinRequest.selectAll().where { (ClubJoinRequest.clubId eq clubId) and (ClubJoinRequest.status eq "pending") }
+            .map { row ->
+                ClubJoinResponse(
+                    clubId = row[ClubJoinRequest.clubId].toString(),
+                    userId = row[ClubJoinRequest.userId],
+                    status = row[ClubJoinRequest.status],
+                    requestedOn = row[ClubJoinRequest.requestedOn].toString()
+                )
+            }
+        pendingMembers.ifEmpty { null }
     }
 
     private fun rowToClubMember(row: ResultRow): ClubMember {

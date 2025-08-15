@@ -53,6 +53,7 @@ fun Application.configureRouting(
         getUsersClubs(clubMemberDataSource)
         changeClubMemberRole(clubMemberDataSource)
         getClubRole(clubMemberDataSource)
+        getPendingMembers(clubMemberDataSource)
 
         // Event routes
         getEvent(eventsDataSource)
