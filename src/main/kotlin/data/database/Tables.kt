@@ -101,7 +101,6 @@ object EventNews : Table() {
 object ClubJoinRequest: Table() {
     val userId = varchar("userId", 50).references(Users.id)
     val clubId = uuid("clubId").references(Clubs.id, onDelete = ReferenceOption.CASCADE)
-    val requestMessage = text("requestMessage")
     val status = varchar("status", 20).default("pending")
     val requestedOn = datetime("requestedOn")
 

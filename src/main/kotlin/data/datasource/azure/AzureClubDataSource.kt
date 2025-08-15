@@ -1,5 +1,6 @@
 package com.example.data.datasource.azure
 
+import com.example.data.database.ClubJoinRequest
 import com.example.data.database.ClubMembers
 import com.example.data.database.Clubs
 import com.example.data.database.EventParticipants
@@ -11,6 +12,7 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import java.util.UUID
 import com.example.data.datasource.helpers.rowToClub
+import com.example.data.model.Response.ClubJoinResponse
 import com.example.data.model.Response.ClubResponse
 import com.example.data.model.Response.EventResponse
 import org.jetbrains.exposed.sql.javatime.CurrentDateTime
