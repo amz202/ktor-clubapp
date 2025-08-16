@@ -55,7 +55,8 @@ class AzureClubDataSource(private val database: Database) : ClubDataSource {
                 createdOn = it.createdOn,
                 id = it.id.toString(),
                 memberCount = memberCount,
-                createdBy = it.createdBy
+                createdBy = it.createdBy,
+                isOpen = it.isOpen
             )
         }
     }
@@ -72,7 +73,8 @@ class AzureClubDataSource(private val database: Database) : ClubDataSource {
                     createdOn = club.createdOn,
                     id = club.id.toString(),
                     memberCount = memberCount,
-                    createdBy = club.createdBy
+                    createdBy = club.createdBy,
+                    isOpen = club.isOpen
                 )
             }
     }
@@ -91,7 +93,8 @@ class AzureClubDataSource(private val database: Database) : ClubDataSource {
                             tags = clubRow[Clubs.tags],
                             createdOn = clubRow[Clubs.createdOn].toString(),
                             createdBy = clubRow[Clubs.createdBy],
-                            memberCount = memberCount
+                            memberCount = memberCount,
+                            isOpen = clubRow[Clubs.isOpen]
                         )
                     }.singleOrNull()
             }

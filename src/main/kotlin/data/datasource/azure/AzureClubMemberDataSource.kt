@@ -106,6 +106,28 @@ class AzureClubMemberDataSource(private val database: Database) : ClubMemberData
         pendingMembers.ifEmpty { null }
     }
 
+    override suspend fun approveMember(clubId: UUID, userId: String): Boolean = newSuspendedTransaction(db = database) {
+        val updated = ClubMembers.insert {
+            it[ClubMembers.clubId] = clubId
+            it[ClubMembers.userId] = userId
+            it[clubRole] = "member"
+            it[joinedOn] = CurrentDateTime
+        }
+        if (updated.insertedCount > 0) {
+            ClubJoinRequest.deleteWhere { (ClubJoinRequest.clubId eq clubId) and (ClubJoinRequest.userId eq userId) }
+            true
+        } else {
+            false
+        }
+    }
+
+    override suspend fun rejectMember(clubId: UUID, userId: String): Boolean = newSuspendedTransaction(db=database){
+        val rejected = ClubJoinRequest.update({ (ClubJoinRequest.clubId eq clubId) and (ClubJoinRequest.userId eq userId) }) {
+            it[status] = "rejected"
+        }
+        rejected > 0
+    }
+
     private fun rowToClubMember(row: ResultRow): ClubMember {
         return ClubMember(
             userId = row[ClubMembers.userId],

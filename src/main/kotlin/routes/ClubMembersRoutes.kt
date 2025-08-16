@@ -54,7 +54,7 @@ fun Route.getClubsMembers(clubMemberDataSource: ClubMemberDataSource) {
     }
 }
 
-fun Route.joinClub(clubMemberDataSource: ClubMemberDataSource) {
+fun Route.joinClub(clubMemberDataSource: ClubMemberDataSource, clubDataSource: ClubDataSource) {
     authenticate {
         post("/club/{clubId}/join") {
             val userId = call.getAuthenticatedUser()?.id
@@ -69,6 +69,15 @@ fun Route.joinClub(clubMemberDataSource: ClubMemberDataSource) {
             }
             if (clubId == null) {
                 call.respond(HttpStatusCode.BadRequest, "Invalid club ID")
+                return@post
+            }
+            val club = clubDataSource.getClub(clubId)
+            if (club == null) {
+                call.respond(HttpStatusCode.NotFound, "Club not found")
+                return@post
+            }
+            if (!club.isOpen){
+                call.respond(HttpStatusCode.Forbidden, "This club is not open for joining")
                 return@post
             }
             val result = clubMemberDataSource.joinClub(clubId, userId)
@@ -210,6 +219,60 @@ fun Route.getPendingMembers(clubMemberDataSource: ClubMemberDataSource){
                 call.respond(HttpStatusCode.OK, pendingMembers)
             } else {
                 call.respond(HttpStatusCode.NotFound, "No pending members found for this club")
+            }
+        }
+    }
+}
+
+fun Route.approveMember(clubMemberDataSource: ClubMemberDataSource){
+    authenticate {
+        post("/clubs/{id}/approve-member") {
+            if(!call.requireRole("admin")){
+                call.respond(HttpStatusCode.Forbidden, "You do not have permission to approve members")
+                return@post
+            }
+            val clubId = call.parameters["id"]?.let { UUID.fromString(it) }
+            if (clubId == null) {
+                call.respond(HttpStatusCode.BadRequest, "Invalid club ID")
+                return@post
+            }
+            val userId = call.parameters["userId"]
+            if (userId == null) {
+                call.respond(HttpStatusCode.BadRequest, "User ID is required")
+                return@post
+            }
+            val result = clubMemberDataSource.approveMember(clubId, userId)
+            if (result) {
+                call.respond(HttpStatusCode.OK, "Member approved successfully")
+            } else {
+                call.respond(HttpStatusCode.InternalServerError, "Failed to approve member")
+            }
+        }
+    }
+}
+
+fun Route.rejectMember(clubMemberDataSource: ClubMemberDataSource){
+    authenticate {
+        post("/clubs/{id}/reject-member") {
+            if(!call.requireRole("admin")){
+                call.respond(HttpStatusCode.Forbidden, "You do not have permission to reject members")
+                return@post
+            }
+            val clubId = call.parameters["id"]?.let { UUID.fromString(it) }
+            if (clubId == null) {
+                call.respond(HttpStatusCode.BadRequest, "Invalid club ID")
+                return@post
+            }
+            val userId = call.parameters["userId"]
+            if (userId == null) {
+                call.respond(HttpStatusCode.BadRequest, "User ID is required")
+                return@post
+            }
+            val result = clubMemberDataSource.rejectMember(clubId, userId)
+            if (result) {
+                call.respond(HttpStatusCode.OK, "Member rejected successfully")
+            } else {
+                call.respond(HttpStatusCode.InternalServerError, "Failed to reject member")
             }
         }
     }

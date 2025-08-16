@@ -33,4 +33,6 @@ interface ClubMemberDataSource {
     suspend fun changeRole(clubId: UUID, userId: String, role: String): Boolean
     suspend fun getClubRole(clubId: UUID, userId: String): RoleResponse?
     suspend fun getPendingMembers(clubId: UUID): List<ClubJoinResponse>?
+    suspend fun approveMember(clubId: UUID, userId: String): Boolean
+    suspend fun rejectMember(clubId: UUID, userId: String): Boolean
 }

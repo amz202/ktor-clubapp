@@ -48,12 +48,14 @@ fun Application.configureRouting(
 
         // Club member routes
         getClubsMembers(clubMemberDataSource)
-        joinClub(clubMemberDataSource)
+        joinClub(clubMemberDataSource, clubDataSource)
         leaveClub(clubMemberDataSource)
         getUsersClubs(clubMemberDataSource)
         changeClubMemberRole(clubMemberDataSource)
         getClubRole(clubMemberDataSource)
         getPendingMembers(clubMemberDataSource)
+        approveMember(clubMemberDataSource)
+        rejectMember(clubMemberDataSource)
 
         // Event routes
         getEvent(eventsDataSource)

@@ -11,4 +11,5 @@ data class ClubResponse(
     val createdBy: String,
     val id: String,
     val memberCount: Int,
+    val isOpen: Boolean
 )
