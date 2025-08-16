@@ -106,11 +106,11 @@ class AzureClubMemberDataSource(private val database: Database) : ClubMemberData
         pendingMembers.ifEmpty { null }
     }
 
-    override suspend fun approveMember(clubId: UUID, userId: String): Boolean = newSuspendedTransaction(db = database) {
+    override suspend fun approveMember(clubId: UUID, userId: String, role: String): Boolean = newSuspendedTransaction(db = database) {
         val updated = ClubMembers.insert {
             it[ClubMembers.clubId] = clubId
             it[ClubMembers.userId] = userId
-            it[clubRole] = "member"
+            it[clubRole] = role
             it[joinedOn] = CurrentDateTime
         }
         if (updated.insertedCount > 0) {

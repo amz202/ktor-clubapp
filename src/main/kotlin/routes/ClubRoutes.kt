@@ -94,7 +94,7 @@ fun Route.createClub(clubDataSource: ClubDataSource, clubMemberDataSource: ClubM
             val result = club?.let { clubDataSource.createClub(it) }
             if (result == true) {
                 call.respond(HttpStatusCode.Created, club)
-                clubMemberDataSource.joinClub(club.id, principal.id, "creator")
+                clubMemberDataSource.approveMember(club.id, principal.id, "creator")
                 groupDataSource.createGroup(
                     ClubGroup(
                         name = club.name,

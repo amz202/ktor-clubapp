@@ -241,7 +241,7 @@ fun Route.approveMember(clubMemberDataSource: ClubMemberDataSource){
                 call.respond(HttpStatusCode.BadRequest, "User ID is required")
                 return@post
             }
-            val result = clubMemberDataSource.approveMember(clubId, userId)
+            val result = clubMemberDataSource.approveMember(clubId, userId, "member")
             if (result) {
                 call.respond(HttpStatusCode.OK, "Member approved successfully")
             } else {
