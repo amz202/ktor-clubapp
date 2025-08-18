@@ -178,15 +178,15 @@ fun Route.changeClubMemberRole(clubMemberDataSource: ClubMemberDataSource) {
 fun Route.getClubRole(clubMemberDataSource: ClubMemberDataSource){
     authenticate {
         get("/club/{clubId}/role") {
+            val userId = call.getAuthenticatedUser()?.id
+            if (userId == null) {
+                call.respond(HttpStatusCode.Unauthorized, "User not authenticated")
+                return@get
+            }
             val clubId = try {
                 call.parameters["clubId"]?.let { UUID.fromString(it) }
             } catch (e: IllegalArgumentException) {
                 null
-            }
-            val userId = call.principal<MyAuthenticatedUser>()?.id
-            if (userId == null) {
-                call.respond(HttpStatusCode.Unauthorized, "User not authenticated")
-                return@get
             }
             if (clubId == null) {
                 call.respond(HttpStatusCode.BadRequest, "Missing or invalid clubId or userId")

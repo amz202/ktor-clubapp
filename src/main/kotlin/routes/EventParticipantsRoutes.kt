@@ -196,15 +196,15 @@ fun Route.changeEventRole(eventParticipantDataSource: EventParticipantDataSource
 fun Route.getEventRole(eventParticipantDataSource: EventParticipantDataSource){
     authenticate {
         get("/events/{eventId}/role") {
+            val userId = call.getAuthenticatedUser()?.id
+            if (userId == null) {
+                call.respond(HttpStatusCode.Unauthorized, "User not authenticated")
+                return@get
+            }
             val eventId = try {
                 call.parameters["eventId"]?.let { UUID.fromString(it) }
             } catch (e: IllegalArgumentException) {
                 null
-            }
-            val userId = call.principal<MyAuthenticatedUser>()?.id
-            if (userId == null) {
-                call.respond(HttpStatusCode.Unauthorized, "User not authenticated")
-                return@get
             }
             if (eventId == null) {
                 call.respond(HttpStatusCode.BadRequest, "Missing or invalid eventId or userId")
