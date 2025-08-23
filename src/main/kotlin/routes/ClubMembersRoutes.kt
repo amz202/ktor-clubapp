@@ -226,7 +226,7 @@ fun Route.getPendingMembers(clubMemberDataSource: ClubMemberDataSource){
 
 fun Route.approveMember(clubMemberDataSource: ClubMemberDataSource){
     authenticate {
-        post("/clubs/{id}/approve-member") {
+        post("/clubs/{id}/approve-member/{userId}") {
             if(!call.requireRole("admin")){
                 call.respond(HttpStatusCode.Forbidden, "You do not have permission to approve members")
                 return@post
@@ -253,7 +253,7 @@ fun Route.approveMember(clubMemberDataSource: ClubMemberDataSource){
 
 fun Route.rejectMember(clubMemberDataSource: ClubMemberDataSource){
     authenticate {
-        post("/clubs/{id}/reject-member") {
+        post("/clubs/{id}/reject-member/{userId}") {
             if(!call.requireRole("admin")){
                 call.respond(HttpStatusCode.Forbidden, "You do not have permission to reject members")
                 return@post
