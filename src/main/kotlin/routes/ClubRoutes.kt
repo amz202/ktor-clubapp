@@ -8,7 +8,6 @@ import com.example.data.model.ClubGroup
 import com.example.data.model.MyAuthenticatedUser
 import com.example.data.model.Requests.ClubRequest
 import com.example.utils.getAuthenticatedUser
-import com.example.utils.requireRole
 import io.ktor.http.*
 import io.ktor.server.auth.*
 import io.ktor.server.request.*
@@ -112,10 +111,10 @@ fun Route.createClub(clubDataSource: ClubDataSource, clubMemberDataSource: ClubM
 fun Route.deleteClub(clubDataSource: ClubDataSource, groupDataSource: GroupDataSource) {
     authenticate {
         delete("/clubs/{id}") {
-            if(!call.requireRole("admin")){
-                call.respond(HttpStatusCode.Forbidden, "You do not have permission to delete clubs")
-                return@delete
-            }
+//            if(!call.requireRole("creator")){
+//                call.respond(HttpStatusCode.Forbidden, "You do not have permission to delete clubs")
+//                return@delete
+//            }
             val clubId = call.parameters["id"]?.let { UUID.fromString(it) }
             if (clubId == null) {
                 call.respond(HttpStatusCode.BadRequest, "Invalid club ID")
@@ -123,8 +122,8 @@ fun Route.deleteClub(clubDataSource: ClubDataSource, groupDataSource: GroupDataS
             }
             val result = clubDataSource.deleteClub(clubId)
             if (result) {
-                call.respond(HttpStatusCode.OK, "Club deleted")
                 groupDataSource.deleteGroup(clubId = clubId.toString())
+                call.respond(HttpStatusCode.OK, "Club deleted")
             } else {
                 call.respond(HttpStatusCode.NotFound, "Club not found")
             }

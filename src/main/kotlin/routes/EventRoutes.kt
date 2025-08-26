@@ -6,7 +6,8 @@ import com.example.data.model.Event
 import com.example.data.model.MyAuthenticatedUser
 import com.example.data.model.Requests.EventRequest
 import com.example.utils.getAuthenticatedUser
-import com.example.utils.requireRole
+import com.example.utils.hasClubRole
+import com.example.utils.hasEventRole
 import io.ktor.http.*
 import io.ktor.server.auth.*
 import io.ktor.server.request.*
@@ -117,13 +118,13 @@ fun Route.createEvent(eventsDataSource: EventsDataSource, eventParticipantDataSo
 
 fun Route.deleteEvent(eventsDataSource: EventsDataSource) {
     delete("/events/{id}") {
-        if(!call.requireRole("admin")){
-            call.respond(HttpStatusCode.Forbidden, "You do not have permission to delete events")
-            return@delete
-        }
         val eventId = call.parameters["id"]?.let { UUID.fromString(it) }
         if (eventId == null) {
             call.respond(HttpStatusCode.BadRequest, "Invalid event ID")
+            return@delete
+        }
+        if(!call.hasEventRole(eventId = eventId, role = "creator")){
+            call.respond(HttpStatusCode.Forbidden, "You do not have permission to change roles")
             return@delete
         }
         val result = eventsDataSource.deleteEvent(eventId)

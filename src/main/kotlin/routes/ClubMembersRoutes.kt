@@ -5,7 +5,7 @@ import com.example.data.datasource.ClubMemberDataSource
 import com.example.data.model.MyAuthenticatedUser
 import com.example.data.model.Requests.RoleRequest
 import com.example.utils.getAuthenticatedUser
-import com.example.utils.requireRole
+import com.example.utils.hasClubRole
 import io.ktor.http.*
 import io.ktor.server.auth.*
 import io.ktor.server.request.*
@@ -138,10 +138,6 @@ fun Route.getUsersClubs(clubMemberDataSource: ClubMemberDataSource) {
 fun Route.changeClubMemberRole(clubMemberDataSource: ClubMemberDataSource) {
     authenticate {
         post("/club/{clubId}/{userId}/change-role") {
-            if(!call.requireRole("admin")){
-                call.respond(HttpStatusCode.Forbidden, "You do not have permission to change roles")
-                return@post
-            }
             val clubId = try {
                 call.parameters["clubId"]?.let { UUID.fromString(it) }
             } catch (e: IllegalArgumentException) {
@@ -151,6 +147,10 @@ fun Route.changeClubMemberRole(clubMemberDataSource: ClubMemberDataSource) {
 
             if (clubId == null || userId == null) {
                 call.respond(HttpStatusCode.BadRequest, "Missing or invalid clubId or userId")
+                return@post
+            }
+            if(!call.hasClubRole(clubId = clubId, role = "creator")){
+                call.respond(HttpStatusCode.Forbidden, "You do not have permission to change roles")
                 return@post
             }
             val request = try {
@@ -205,13 +205,13 @@ fun Route.getClubRole(clubMemberDataSource: ClubMemberDataSource){
 fun Route.getPendingMembers(clubMemberDataSource: ClubMemberDataSource){
     authenticate {
         get("/clubs/{id}/pending-members") {
-            if(!call.requireRole("admin")){
-                call.respond(HttpStatusCode.Forbidden, "You do not have permission to view pending members")
-                return@get
-            }
             val clubId = call.parameters["id"]?.let { UUID.fromString(it) }
             if (clubId == null) {
                 call.respond(HttpStatusCode.BadRequest, "Invalid club ID")
+                return@get
+            }
+            if(!call.hasClubRole(clubId = clubId, role = "creator")){
+                call.respond(HttpStatusCode.Forbidden, "You do not have permission to change roles")
                 return@get
             }
             val pendingMembers = clubMemberDataSource.getPendingMembers(clubId)
@@ -227,13 +227,13 @@ fun Route.getPendingMembers(clubMemberDataSource: ClubMemberDataSource){
 fun Route.approveMember(clubMemberDataSource: ClubMemberDataSource){
     authenticate {
         post("/clubs/{id}/approve-member/{userId}") {
-            if(!call.requireRole("admin")){
-                call.respond(HttpStatusCode.Forbidden, "You do not have permission to approve members")
-                return@post
-            }
             val clubId = call.parameters["id"]?.let { UUID.fromString(it) }
             if (clubId == null) {
                 call.respond(HttpStatusCode.BadRequest, "Invalid club ID")
+                return@post
+            }
+            if(!call.hasClubRole(clubId = clubId, role = "creator")){
+                call.respond(HttpStatusCode.Forbidden, "You do not have permission to change roles")
                 return@post
             }
             val userId = call.parameters["userId"]
@@ -254,13 +254,13 @@ fun Route.approveMember(clubMemberDataSource: ClubMemberDataSource){
 fun Route.rejectMember(clubMemberDataSource: ClubMemberDataSource){
     authenticate {
         post("/clubs/{id}/reject-member/{userId}") {
-            if(!call.requireRole("admin")){
-                call.respond(HttpStatusCode.Forbidden, "You do not have permission to reject members")
-                return@post
-            }
             val clubId = call.parameters["id"]?.let { UUID.fromString(it) }
             if (clubId == null) {
                 call.respond(HttpStatusCode.BadRequest, "Invalid club ID")
+                return@post
+            }
+            if(!call.hasClubRole(clubId = clubId, role = "creator")){
+                call.respond(HttpStatusCode.Forbidden, "You do not have permission to change roles")
                 return@post
             }
             val userId = call.parameters["userId"]

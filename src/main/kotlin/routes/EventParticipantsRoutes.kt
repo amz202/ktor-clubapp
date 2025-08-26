@@ -5,7 +5,7 @@ import com.example.data.datasource.EventsDataSource
 import com.example.data.model.MyAuthenticatedUser
 import com.example.data.model.Requests.RoleRequest
 import com.example.utils.getAuthenticatedUser
-import com.example.utils.requireRole
+import com.example.utils.hasEventRole
 import io.ktor.http.*
 import io.ktor.server.auth.*
 import io.ktor.server.request.*
@@ -159,10 +159,6 @@ fun Route.getUserEvents(eventParticipantDataSource: EventParticipantDataSource) 
 fun Route.changeEventRole(eventParticipantDataSource: EventParticipantDataSource) {
     authenticate {
         post("/events/{eventId}/{userId}/change-role") {
-            if(!call.requireRole("admin")){
-                call.respond(HttpStatusCode.Forbidden, "You do not have permission to change roles")
-                return@post
-            }
             val eventId = try {
                 call.parameters["eventId"]?.let { UUID.fromString(it) }
             } catch (e: IllegalArgumentException) {
@@ -170,6 +166,10 @@ fun Route.changeEventRole(eventParticipantDataSource: EventParticipantDataSource
             }
             if (eventId == null) {
                 call.respond(HttpStatusCode.BadRequest, "Invalid event ID")
+                return@post
+            }
+            if(!call.hasEventRole(eventId = eventId, role = "creator")){
+                call.respond(HttpStatusCode.Forbidden, "You do not have permission to change roles")
                 return@post
             }
             val userId = call.parameters["userId"]
