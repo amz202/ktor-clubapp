@@ -76,7 +76,7 @@ fun Route.joinClub(clubMemberDataSource: ClubMemberDataSource, clubDataSource: C
                 call.respond(HttpStatusCode.NotFound, "Club not found")
                 return@post
             }
-            if (!club.isOpen){
+            if (club.status != "open"){
                 call.respond(HttpStatusCode.Forbidden, "This club is not open for joining")
                 return@post
             }

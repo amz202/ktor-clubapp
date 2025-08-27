@@ -56,7 +56,7 @@ class AzureClubDataSource(private val database: Database) : ClubDataSource {
                 id = it.id.toString(),
                 memberCount = memberCount,
                 createdBy = it.createdBy,
-                isOpen = it.isOpen
+                status = it.status
             )
         }
     }
@@ -74,7 +74,7 @@ class AzureClubDataSource(private val database: Database) : ClubDataSource {
                     id = club.id.toString(),
                     memberCount = memberCount,
                     createdBy = club.createdBy,
-                    isOpen = club.isOpen
+                    status = club.status
                 )
             }
     }
@@ -94,7 +94,7 @@ class AzureClubDataSource(private val database: Database) : ClubDataSource {
                             createdOn = clubRow[Clubs.createdOn].toString(),
                             createdBy = clubRow[Clubs.createdBy],
                             memberCount = memberCount,
-                            isOpen = clubRow[Clubs.isOpen]
+                            status = clubRow[Clubs.status]
                         )
                     }.singleOrNull()
             }
@@ -103,13 +103,13 @@ class AzureClubDataSource(private val database: Database) : ClubDataSource {
 
     override suspend fun openClub(id: UUID): Boolean = newSuspendedTransaction(db = database) {
         Clubs.update({ Clubs.id eq id }) {
-            it[isOpen] = true
+            it[status] = "open"
         } > 0
     }
 
     override suspend fun closeClub(id: UUID): Boolean = newSuspendedTransaction(db = database){
         Clubs.update({ Clubs.id eq id }) {
-            it[isOpen] = false
+            it[status] = "close"
         } > 0
     }
 

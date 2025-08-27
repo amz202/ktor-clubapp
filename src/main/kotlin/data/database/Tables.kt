@@ -32,7 +32,7 @@ object Clubs : Table() {
     val createdOn = datetime("createdOn")
     val createdBy = varchar("createdBy", 50)
     val tags = varchar("tags", 100)
-    val isOpen = bool("open").default(true)
+    val status = varchar("status", 100).default("open")
 
     override val primaryKey = PrimaryKey(id)
 }

@@ -14,5 +14,5 @@ data class Club(
     val tags:String,
     val createdOn: String,
     val createdBy:String,
-    val isOpen: Boolean = true
+    val status: String = "open"
 )
