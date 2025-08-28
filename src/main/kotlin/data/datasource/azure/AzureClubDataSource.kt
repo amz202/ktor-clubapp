@@ -121,6 +121,7 @@ class AzureClubDataSource(private val database: Database) : ClubDataSource {
             it[createdBy] = club.createdBy
             it[createdOn] = CurrentDateTime
             it[tags] = club.tags
+            it[status] = club.status
         }
         result.insertedCount > 0
     }

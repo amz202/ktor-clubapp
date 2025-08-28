@@ -49,6 +49,7 @@ fun Route.getClub(clubDataSource: ClubDataSource) {
             call.respond(HttpStatusCode.NotFound, "Club not found")
         } else {
             call.respond(HttpStatusCode.OK, club)
+            println(club)
         }
     }
 }
@@ -87,7 +88,8 @@ fun Route.createClub(clubDataSource: ClubDataSource, clubMemberDataSource: ClubM
                     description = clubRequest.description,
                     tags = clubRequest.tags,
                     createdBy = it,
-                    createdOn = LocalDateTime.now().toString()
+                    createdOn = LocalDateTime.now().toString(),
+                    status = "open"
                 )
             }
             val result = club?.let { clubDataSource.createClub(it) }

@@ -11,4 +11,5 @@ fun rowToClub(row: ResultRow) = Club(
     tags = row[Clubs.tags],
     createdBy = row[Clubs.createdBy],
     createdOn = row[Clubs.createdOn].toString(),
+    status = row[Clubs.status]
 )
