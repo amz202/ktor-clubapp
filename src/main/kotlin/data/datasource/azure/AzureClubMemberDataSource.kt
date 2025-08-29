@@ -87,10 +87,19 @@ class AzureClubMemberDataSource(private val database: Database) : ClubMemberData
     }
 
     override suspend fun getClubRole(clubId: UUID, userId: String): RoleResponse? = newSuspendedTransaction(db = database) {
-        val role = ClubMembers.selectAll().where { (ClubMembers.clubId eq clubId) and (ClubMembers.userId eq userId) }
-            .map { it[ClubMembers.clubRole] }
+        ClubMembers
+            .select(ClubMembers.clubRole)
+            .where { (ClubMembers.clubId eq clubId) and (ClubMembers.userId eq userId) }
             .singleOrNull()
-        role?.let { RoleResponse(it) }
+            ?.let { return@newSuspendedTransaction RoleResponse(it[ClubMembers.clubRole]) }
+
+        ClubJoinRequest
+            .select(ClubJoinRequest.status)
+            .where { (ClubJoinRequest.clubId eq clubId) and (ClubJoinRequest.userId eq userId) }
+            .singleOrNull()
+            ?.let { return@newSuspendedTransaction RoleResponse(it[ClubJoinRequest.status]) }
+
+        null
     }
 
     override suspend fun getPendingMembers(clubId: UUID): List<ClubJoinResponse>? = newSuspendedTransaction(db = database){
