@@ -195,7 +195,6 @@ fun Route.getClubRole(clubMemberDataSource: ClubMemberDataSource){
             val role = clubMemberDataSource.getClubRole(clubId, userId.toString())
             if (role != null) {
                 call.respond(HttpStatusCode.OK, role)
-                println(role)
             } else {
                 call.respond(HttpStatusCode.NotFound, "Role not found")
             }

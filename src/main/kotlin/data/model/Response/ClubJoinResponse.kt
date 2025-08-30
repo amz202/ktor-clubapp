@@ -6,6 +6,9 @@ import kotlinx.serialization.Serializable
 data class ClubJoinResponse(
     val clubId: String,
     val userId: String,
+    val name:String,
+    val email: String,
+    val photoUrl: String,
     val status: String,
     val requestedOn: String
 )

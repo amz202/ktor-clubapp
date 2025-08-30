@@ -14,8 +14,13 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.javatime.CurrentDateTime
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import java.util.*
+import kotlin.and
+import kotlin.sequences.ifEmpty
+import kotlin.text.get
+import kotlin.toString
 
 /*
  * Copyright 2025 Abdul Majid
@@ -102,17 +107,22 @@ class AzureClubMemberDataSource(private val database: Database) : ClubMemberData
         null
     }
 
-    override suspend fun getPendingMembers(clubId: UUID): List<ClubJoinResponse>? = newSuspendedTransaction(db = database){
-        val pendingMembers = ClubJoinRequest.selectAll().where { (ClubJoinRequest.clubId eq clubId) and (ClubJoinRequest.status eq "pending") }
+    override suspend fun getPendingMembers(clubId: UUID): List<ClubJoinResponse>? = newSuspendedTransaction(db = database) {
+        (ClubJoinRequest innerJoin Users)
+            .selectAll()
+            .where { (ClubJoinRequest.clubId eq clubId) and (ClubJoinRequest.status eq "pending") }
             .map { row ->
                 ClubJoinResponse(
                     clubId = row[ClubJoinRequest.clubId].toString(),
                     userId = row[ClubJoinRequest.userId],
+                    name = row[Users.name],
+                    email = row[Users.email],
+                    photoUrl = row[Users.photoUrl] ?: "",
                     status = row[ClubJoinRequest.status],
                     requestedOn = row[ClubJoinRequest.requestedOn].toString()
                 )
             }
-        pendingMembers.ifEmpty { null }
+            .ifEmpty { null }
     }
 
     override suspend fun approveMember(clubId: UUID, userId: String, role: String): Boolean = newSuspendedTransaction(db = database) {
