@@ -214,12 +214,8 @@ fun Route.getPendingMembers(clubMemberDataSource: ClubMemberDataSource){
                 call.respond(HttpStatusCode.Forbidden, "You do not have permission to change roles")
                 return@get
             }
-            val pendingMembers = clubMemberDataSource.getPendingMembers(clubId)
-            if (pendingMembers != null) {
-                call.respond(HttpStatusCode.OK, pendingMembers)
-            } else {
-                call.respond(HttpStatusCode.NotFound, "No pending members found for this club")
-            }
+            val pendingMembers = clubMemberDataSource.getPendingMembers(clubId) ?: emptyList()
+            call.respond(HttpStatusCode.OK, pendingMembers)
         }
     }
 }
