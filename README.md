@@ -22,7 +22,7 @@ Designed with clean architecture principles, the backend ensures clear separatio
 ## Technology Stack
 
 - **Kotlin** with **Ktor**  
-- **Azure PostgreSQL** using **Exposed ORM**  
+- **Azure PostgreSQL** using **Exposed ORM** (temporarily shifted to **Supabase**) 
 - **MongoDB Atlas** for chat groups and messages  
 - **Firebase Authentication** for session validation  
 - **Firebase Cloud Messaging** for push notifications  
@@ -36,7 +36,7 @@ Designed with clean architecture principles, the backend ensures clear separatio
 
 | Module                | Description                                                                 |
 |-----------------------|-----------------------------------------------------------------------------|
-| Clubs & Memberships   | Club creation, search, join/leave functionality                             |
+| Clubs & Memberships   | Club creation, open/close, join/leave functionality                         |
 | Events                | Club-specific event creation and participation tracking                     |
 | Authentication        | Firebase ID token verification, user session linking                        |
 | Notifications         | Firebase Cloud Messaging integration for real-time push alerts              |
@@ -45,18 +45,16 @@ Designed with clean architecture principles, the backend ensures clear separatio
 
 ---
 
-## Version 1.1
+## Version 1.2
 
-> **ClubApp Backend v1.1** introduces real-time chat capabilities, improved user session handling, and extended data support through MongoDB.
+> **ClubApp Backend v1.2** refines membership management, improves role lookups, and introduces a temporary migration to Supabase for structured data.
 
 ### Highlights
 
-- Real-time chat via WebSocket server  
-- Automatic group creation linked 1:1 with clubs  
-- MongoDB-backed message persistence (sender, text, timestamp)  
-- Message deletion support for original sender  
-- Session cache bug fixed (previous user data retained post-login)  
-- Google profile picture integration (displayed in app UI)  
+- **Membership control** – Join requests now flow through a structured approval system, with creators and moderators managing access  
+- **Role service** – Added a dedicated service to fetch a user’s role in a club or event, simplifying admin-specific checks  
+- **Database migration** – Switched PostgreSQL from Azure to Supabase (temporary), improving backend stability and reducing connection issues  
+- **Event–club link** – Improved handling of parent club references for events, keeping data consistent with the app  
 
 ---
 
