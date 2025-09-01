@@ -143,7 +143,8 @@ class AzureClubDataSource(private val database: Database) : ClubDataSource {
                     organizedBy = event[Events.organizedBy],
                     id = event[Events.id].toString(),
                     attendeeCount = calculateAttendeeCount(event[Events.id]),
-                    tags = event[Events.tags]
+                    tags = event[Events.tags],
+                    clubName = null
                 )
             }
         events.ifEmpty { null }

@@ -1,5 +1,6 @@
 package com.example.data.datasource.azure
 
+import com.example.data.database.Clubs
 import com.example.data.database.EventParticipants
 import com.example.data.database.Events
 import com.example.data.datasource.EventsDataSource
@@ -10,6 +11,8 @@ import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransacti
 import java.util.UUID
 import com.example.data.datasource.helpers.rowToEvent
 import com.example.data.model.Response.EventResponse
+import org.jetbrains.exposed.sql.selectAll
+import kotlin.text.get
 
 /*
  * Copyright 2025 Abdul Majid
@@ -39,6 +42,14 @@ class AzureEventDataSource(private val database: Database) : EventsDataSource {
 
         event?.let {
             val attendeeCount = calculateAttendeeCount(id)
+            val clubName = if (!it.clubId.isNullOrBlank()) {
+                val clubId = UUID.fromString(it.clubId)
+                Clubs.selectAll().where { Clubs.id eq clubId }
+                    .map { clubRow -> clubRow[Clubs.name] }
+                    .singleOrNull()
+            } else {
+                null
+            }
             EventResponse(
                 name = it.name,
                 description = it.description,
@@ -49,7 +60,8 @@ class AzureEventDataSource(private val database: Database) : EventsDataSource {
                 organizedBy = it.organizedBy,
                 id = it.id.toString(),
                 attendeeCount = attendeeCount,
-                tags = it.tags
+                tags = it.tags,
+                clubName = clubName
             )
         }
     }
@@ -59,6 +71,14 @@ class AzureEventDataSource(private val database: Database) : EventsDataSource {
             .map { rowToEvent(it) }
             .map { event ->
                 val attendeeCount = calculateAttendeeCount(event.id)
+                val clubName = if (!event.clubId.isNullOrBlank()) {
+                    val clubId = UUID.fromString(event.clubId)
+                    Clubs.selectAll().where { Clubs.id eq clubId }
+                        .map { clubRow -> clubRow[Clubs.name] }
+                        .singleOrNull()
+                } else {
+                    null
+                }
                 EventResponse(
                     name = event.name,
                     description = event.description,
@@ -69,7 +89,8 @@ class AzureEventDataSource(private val database: Database) : EventsDataSource {
                     organizedBy = event.organizedBy,
                     id = event.id.toString(),
                     attendeeCount = attendeeCount,
-                    tags = event.tags
+                    tags = event.tags,
+                    clubName = clubName
                 )
             }
     }
@@ -81,6 +102,14 @@ class AzureEventDataSource(private val database: Database) : EventsDataSource {
                 val attendeeCount = calculateAttendeeCount(eventId)
                 Events.selectAll().where{Events.id eq eventId}
                     .map { eventRow ->
+                        val clubName = if (eventRow[Events.clubId] != null) {
+                            val clubId = eventRow[Events.clubId]!!
+                            Clubs.selectAll().where { Clubs.id eq clubId }
+                                .map { clubRow -> clubRow[Clubs.name] }
+                                .singleOrNull()
+                        } else {
+                            null
+                        }
                         EventResponse(
                             name = eventRow[Events.name],
                             description = eventRow[Events.description],
@@ -91,7 +120,8 @@ class AzureEventDataSource(private val database: Database) : EventsDataSource {
                             organizedBy = eventRow[Events.organizedBy],
                             id = eventRow[Events.id].toString(),
                             attendeeCount = attendeeCount,
-                            tags = eventRow[Events.tags]
+                            tags = eventRow[Events.tags],
+                            clubName = clubName
                         )
                     }.singleOrNull()
             }
