@@ -42,10 +42,10 @@ import org.jetbrains.exposed.sql.Database
 fun main(args: Array<String>) {
     io.ktor.server.netty.EngineMain.main(args)
 }
-
+////home/amz18/Documents/Dev/Firebase/key
 fun Application.module() {
     //Azure
-    val serviceAccountPath = "C:\\Users\\amz20\\firebase_key\\club\\clubapp-f255a-firebase-adminsdk-fbsvc-fc41eebff2.json"
+    val serviceAccountPath = "/home/amz18/Documents/Dev/Firebase/key/clubapp-f255a-firebase-adminsdk-fbsvc-dd1f0b47fa.json"
     val dataSource = DatabaseFactory.init()
     val database = Database.connect(dataSource)
     val userDataSource = AzureUserDataSource(database)
