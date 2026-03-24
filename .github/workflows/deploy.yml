@@ -50,4 +50,4 @@ jobs:
 
           # 4. Restart the Bare-Metal Service
           echo "Restarting the Ktor backend..."
-          ssh -i ~/.ssh/id_ed25519 $USERNAME@$SERVER_IP "sudo systemctl restart ktor-backend"
+          ssh -i ~/.ssh/id_ed25519 $USERNAME@$SERVER_IP "sudo systemctl restart ktor-clubapp"
