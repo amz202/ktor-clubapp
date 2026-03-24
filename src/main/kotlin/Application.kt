@@ -45,7 +45,7 @@ fun main(args: Array<String>) {
 ////home/amz18/Documents/Dev/Firebase/key
 fun Application.module() {
     //Azure
-    val serviceAccountPath = "/home/amz18/Documents/Dev/Firebase/key/clubapp-f255a-firebase-adminsdk-fbsvc-dd1f0b47fa.json"
+    val serviceAccountPath = "/home/amz/ktor-clubapp/firebase-key.json"
     val dataSource = DatabaseFactory.init()
     val database = Database.connect(dataSource)
     val userDataSource = AzureUserDataSource(database)
