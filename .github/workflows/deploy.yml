@@ -1,0 +1,53 @@
+name: Ktor ClubApp Deployment
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup Java 23 Runtime
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '23'
+          cache: 'gradle'
+
+      - name: Compile Ktor Fat JAR
+        run: |
+          chmod +x gradlew
+          ./gradlew buildFatJar
+
+      - name: Connect to Tailscale VPN
+        uses: tailscale/github-action@v2
+        with:
+          authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+
+      - name: Secure Copy & Restart Service
+        env:
+          PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
+          SERVER_IP: 100.67.213.66
+          USERNAME: amz
+          TARGET_DIR: /home/amz/ktor-clubapp
+        run: |
+          # 1. Configure the SSH Identity
+          mkdir -p ~/.ssh
+          echo "$PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan $SERVER_IP >> ~/.ssh/known_hosts
+
+          # 2. Prepare Remote Directory
+          ssh -i ~/.ssh/id_ed25519 $USERNAME@$SERVER_IP "mkdir -p $TARGET_DIR/build/libs"
+
+          # 3. Transfer the Compiled JAR
+          echo "Transferring executable to Dell Server..."
+          scp -i ~/.ssh/id_ed25519 build/libs/*-all.jar $USERNAME@$SERVER_IP:$TARGET_DIR/build/libs/
+
+          # 4. Restart the Bare-Metal Service
+          echo "Restarting the Ktor backend..."
+          ssh -i ~/.ssh/id_ed25519 $USERNAME@$SERVER_IP "sudo systemctl restart ktor-backend"
