@@ -28,7 +28,7 @@ object DatabaseFactory {
         val config = HikariConfig().apply {
             jdbcUrl = "jdbc:postgresql://localhost:5432/clubapp_db"
             driverClassName = "org.postgresql.Driver"
-            username = "postgres.ulrxrdveslukpfvouxfo"
+            username = "clubapp_user"
             password = System.getenv("DATABASE_PW")
             maximumPoolSize = 10
             isAutoCommit = false
